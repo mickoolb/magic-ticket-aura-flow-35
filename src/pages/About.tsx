@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,8 @@ import {
   Mail,
   ArrowRight
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const About = () => {
   return (
@@ -40,7 +41,7 @@ const About = () => {
               <h2 className="text-3xl font-bold text-magic-dark mb-6">Nuestra Historia</h2>
               <div className="space-y-4 text-magic-dark/80">
                 <p>
-                  MagicTicket nació de una visión: crear un espacio donde las personas puedan encontrar fácilmente eventos que nutran su espíritu y eleven su consciencia.
+                  MagicTicket nació de una visión: crear un espacio donde las personas puedan encontrar fácilmente eventos que nutran su espíritu y elevan su consciencia.
                 </p>
                 <p>
                   Fundada en 2023 por un grupo de entusiastas del desarrollo personal y espiritual, nuestra plataforma se ha convertido en el puente que conecta a buscadores con maestros, talleres y experiencias transformadoras.

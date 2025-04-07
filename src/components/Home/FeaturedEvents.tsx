@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, Users, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, Users, ExternalLink, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Mock data for featured events
