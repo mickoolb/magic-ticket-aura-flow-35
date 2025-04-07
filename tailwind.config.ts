@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// MagicTicket custom colors
+				magic: {
+					DEFAULT: '#8A6FD8', // Main violet
+					light: '#E5DEFF', // Soft light violet
+					dark: '#5A4A8F', // Darker violet
+					gold: '#F0D19F', // Soft gold
+					pink: '#FFDEE2', // Soft pink
+					peach: '#FDE1D3', // Soft peach
+					blue: '#D3E4FD', // Soft blue
+					gray: '#F1F0FB', // Soft gray
 				}
 			},
 			borderRadius: {
@@ -84,11 +96,46 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'pulse-soft': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.8'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.5s ease-out',
+				'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
+				'float': 'float 6s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-spiritual': 'linear-gradient(to right, #c1c161 0%, #c1c161 0%, #d4d4b1 100%)',
+				'gradient-purple': 'linear-gradient(102.3deg, rgba(147,39,143,1) 5.9%, rgba(234,172,232,1) 64%, rgba(246,219,245,1) 89%)',
+				'gradient-soft': 'linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%)',
 			}
 		}
 	},
