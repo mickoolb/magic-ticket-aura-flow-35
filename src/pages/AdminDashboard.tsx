@@ -6,7 +6,13 @@ import Layout from '@/components/Layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getAllTickets, validateTicket, Ticket } from '@/utils/ticketUtils';
+import { 
+  getAllTickets, 
+  validateTicket, 
+  Ticket, 
+  extractTicketIdFromQR,
+  decodeQRCode
+} from '@/utils/ticketUtils';
 import { useToast } from '@/components/ui/use-toast';
 import {
   CheckCircle,
@@ -16,7 +22,8 @@ import {
   Ticket as TicketIcon,
   Search,
   Users,
-  ShieldCheck
+  ShieldCheck,
+  Upload
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -31,6 +38,8 @@ const AdminDashboard = () => {
     ticket?: Ticket;
   } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [qrImageFile, setQrImageFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     // Load tickets from localStorage
@@ -56,6 +65,92 @@ const AdminDashboard = () => {
       description: result.message,
       variant: result.valid ? "default" : "destructive"
     });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setQrImageFile(e.target.files[0]);
+    }
+  };
+
+  const handleScanQR = async () => {
+    if (!qrImageFile) {
+      toast({
+        title: "Error",
+        description: "Por favor, selecciona una imagen de código QR",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Read the file as a data URL
+      const reader = new FileReader();
+      
+      reader.onload = async (event) => {
+        if (event.target && event.target.result) {
+          const imageDataUrl = event.target.result.toString();
+          
+          // Decode the QR code
+          const qrData = await decodeQRCode(imageDataUrl);
+          
+          if (qrData) {
+            // Extract the ticket ID from the QR data
+            const extractedTicketId = extractTicketIdFromQR(qrData);
+            
+            if (extractedTicketId) {
+              // Set the extracted ID and validate it
+              setTicketId(extractedTicketId);
+              
+              // For demo purposes, we'll validate the ticket right away
+              const result = validateTicket(extractedTicketId);
+              setValidationResult(result);
+              
+              toast({
+                title: "Código QR escaneado",
+                description: `ID de boleto extraído: ${extractedTicketId}`,
+                variant: "default"
+              });
+            } else {
+              toast({
+                title: "Error de formato",
+                description: "No se pudo extraer el ID del boleto del código QR",
+                variant: "destructive"
+              });
+            }
+          } else {
+            toast({
+              title: "Error de escaneo",
+              description: "No se pudo decodificar el código QR",
+              variant: "destructive"
+            });
+          }
+        }
+        setIsProcessing(false);
+      };
+      
+      reader.onerror = () => {
+        toast({
+          title: "Error",
+          description: "Error al leer el archivo",
+          variant: "destructive"
+        });
+        setIsProcessing(false);
+      };
+      
+      reader.readAsDataURL(qrImageFile);
+      
+    } catch (error) {
+      console.error("Error scanning QR code:", error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al procesar el código QR",
+        variant: "destructive"
+      });
+      setIsProcessing(false);
+    }
   };
 
   const filteredTickets = tickets.filter(ticket => 
@@ -127,11 +222,35 @@ const AdminDashboard = () => {
                       </Button>
                     </div>
                     
-                    <div className="text-center p-4 border border-dashed border-magic-light rounded-lg">
-                      <QrCode className="h-12 w-12 mx-auto text-magic-dark/30 mb-2" />
-                      <p className="text-magic-dark/70 text-sm">
-                        Escanea un código QR para validar (funcionalidad simulada)
-                      </p>
+                    <div className="border border-dashed border-magic-light rounded-lg p-4">
+                      <h3 className="font-semibold text-magic-dark mb-3 flex items-center">
+                        <QrCode className="h-4 w-4 mr-2 text-magic" />
+                        Escanear Código QR
+                      </h3>
+                      
+                      <div className="mb-3">
+                        <Input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="border-magic-light"
+                        />
+                      </div>
+                      
+                      <Button 
+                        onClick={handleScanQR} 
+                        disabled={!qrImageFile || isProcessing}
+                        className="w-full magic-button flex items-center justify-center gap-2"
+                      >
+                        {isProcessing ? (
+                          <span>Procesando...</span>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4" />
+                            Escanear QR y Extraer ID
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>

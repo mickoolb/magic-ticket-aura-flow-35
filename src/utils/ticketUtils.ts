@@ -40,6 +40,40 @@ export const generateQRCode = async (ticketId: string): Promise<string> => {
   }
 };
 
+// Extract ticket ID from QR code data
+export const extractTicketIdFromQR = (qrData: string): string | null => {
+  try {
+    const parsedData = JSON.parse(qrData);
+    if (parsedData && parsedData.ticketId) {
+      return parsedData.ticketId;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error extracting ticket ID from QR:', error);
+    return null;
+  }
+};
+
+// Decode QR code image (in a real app, this would be integrated with a QR scanner library)
+export const decodeQRCode = async (qrImage: string): Promise<string | null> => {
+  // In a real implementation, you would use a QR code scanner library
+  // This is a simplified placeholder that simulates extracting data from QR
+  // For demonstration purposes only
+  
+  try {
+    // This is a mock implementation. In a real app, you would use a QR scanner
+    // like jsQR, zxing, or a native mobile scanner API
+    console.log('Decoding QR image:', qrImage.substring(0, 30) + '...');
+    
+    // Simulate extracting the QR data
+    // In a real implementation, the library would parse the image and extract the data
+    return 'This would be the decoded QR data containing the ticket ID';
+  } catch (error) {
+    console.error('Error decoding QR code:', error);
+    return null;
+  }
+};
+
 // Create a new ticket
 export const createTicket = async (
   eventId: string,
