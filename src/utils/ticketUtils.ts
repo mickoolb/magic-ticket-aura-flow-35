@@ -1,4 +1,3 @@
-
 import QRCode from 'qrcode';
 
 // Type definition for a ticket
@@ -15,6 +14,22 @@ export type Ticket = {
   qrCode: string;
   used: boolean;
 };
+
+// Interfaz para los tickets pendientes
+export interface PendingTicket {
+  id: string;
+  eventId: string;
+  eventName: string;
+  customerName: string;
+  customerEmail: string;
+  eventDate: string;
+  eventLocation: string;
+  price: number;
+  quantity: number;
+  paymentReference: string;
+  requestDate: number;
+  status: 'pending' | 'approved' | 'rejected';
+}
 
 // Generate a unique ticket ID
 export const generateTicketId = (): string => {
@@ -140,4 +155,112 @@ export const getAllTickets = (): Ticket[] => {
 export const getUserTickets = (email: string): Ticket[] => {
   const storedTickets = JSON.parse(localStorage.getItem('magicticket_tickets') || '[]');
   return storedTickets.filter((ticket: Ticket) => ticket.customerEmail.toLowerCase() === email.toLowerCase());
+};
+
+// Crear un ticket pendiente (solicitud de compra)
+export const createPendingTicket = async (
+  eventId: string,
+  eventName: string,
+  customerName: string,
+  customerEmail: string,
+  eventDate: string,
+  eventLocation: string,
+  price: number,
+  quantity: number,
+  paymentReference: string
+): Promise<PendingTicket> => {
+  // Generar un ID único para la solicitud
+  const id = `REQ-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
+  
+  // Crear el ticket pendiente
+  const pendingTicket: PendingTicket = {
+    id,
+    eventId,
+    eventName,
+    customerName,
+    customerEmail,
+    eventDate,
+    eventLocation,
+    price,
+    quantity,
+    paymentReference,
+    requestDate: Date.now(),
+    status: 'pending'
+  };
+  
+  // Guardar en localStorage
+  const pendingTickets = getPendingTickets();
+  pendingTickets.push(pendingTicket);
+  localStorage.setItem('pendingTickets', JSON.stringify(pendingTickets));
+  
+  return pendingTicket;
+};
+
+// Obtener todos los tickets pendientes
+export const getPendingTickets = (): PendingTicket[] => {
+  const pendingTicketsJSON = localStorage.getItem('pendingTickets');
+  if (!pendingTicketsJSON) {
+    return [];
+  }
+  
+  try {
+    return JSON.parse(pendingTicketsJSON);
+  } catch (error) {
+    console.error('Error parsing pendingTickets from localStorage:', error);
+    return [];
+  }
+};
+
+// Aprobar un ticket pendiente
+export const approvePendingTicket = async (pendingTicketId: string): Promise<Ticket[]> => {
+  const pendingTickets = getPendingTickets();
+  const pendingTicketIndex = pendingTickets.findIndex(ticket => ticket.id === pendingTicketId);
+  
+  if (pendingTicketIndex === -1) {
+    throw new Error('Ticket pendiente no encontrado');
+  }
+  
+  const pendingTicket = pendingTickets[pendingTicketIndex];
+  const generatedTickets: Ticket[] = [];
+  
+  // Generar los tickets (cantidad solicitada)
+  for (let i = 0; i < pendingTicket.quantity; i++) {
+    const newTicket = await createTicket(
+      pendingTicket.eventId,
+      pendingTicket.eventName,
+      pendingTicket.customerName,
+      pendingTicket.customerEmail,
+      pendingTicket.eventDate,
+      pendingTicket.eventLocation,
+      pendingTicket.price
+    );
+    generatedTickets.push(newTicket);
+  }
+  
+  // Actualizar el estado del ticket pendiente a 'approved'
+  pendingTicket.status = 'approved';
+  pendingTickets[pendingTicketIndex] = pendingTicket;
+  localStorage.setItem('pendingTickets', JSON.stringify(pendingTickets));
+  
+  // En una aplicación real, aquí enviaríamos un correo con los boletos
+  console.log(`Enviando ${pendingTicket.quantity} boleto(s) a ${pendingTicket.customerEmail}`);
+  
+  return generatedTickets;
+};
+
+// Rechazar un ticket pendiente
+export const rejectPendingTicket = async (pendingTicketId: string): Promise<void> => {
+  const pendingTickets = getPendingTickets();
+  const pendingTicketIndex = pendingTickets.findIndex(ticket => ticket.id === pendingTicketId);
+  
+  if (pendingTicketIndex === -1) {
+    throw new Error('Ticket pendiente no encontrado');
+  }
+  
+  // Actualizar el estado del ticket pendiente a 'rejected'
+  pendingTickets[pendingTicketIndex].status = 'rejected';
+  localStorage.setItem('pendingTickets', JSON.stringify(pendingTickets));
+  
+  // En una aplicación real, aquí enviaríamos un correo de rechazo
+  console.log(`Notificando rechazo de pago a ${pendingTickets[pendingTicketIndex].customerEmail}`);
 };

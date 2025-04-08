@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import { getEvent } from '@/data/events';
-import { createTicket } from '@/utils/ticketUtils';
+import { createPendingTicket } from '@/utils/ticketUtils';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +17,8 @@ import {
   Plus,
   CheckCircle2,
   CopyIcon,
-  AlertCircle
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 
 const BuyTicket = () => {
@@ -34,7 +34,6 @@ const BuyTicket = () => {
   const [customerEmail, setCustomerEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1); // 1: Details, 2: Payment, 3: Confirmation
-  const [ticket, setTicket] = useState<any>(null);
   const [paymentReference, setPaymentReference] = useState('');
   
   useEffect(() => {
@@ -56,36 +55,28 @@ const BuyTicket = () => {
     try {
       setIsSubmitting(true);
       
-      // En una aplicación real, aquí verificaríamos que la transferencia se ha realizado
-      // Para esta demo, simplemente generamos los boletos
-      const tickets = [];
+      const pendingTicketInfo = await createPendingTicket(
+        event.id,
+        event.title,
+        customerName,
+        customerEmail,
+        event.date,
+        event.location,
+        event.price,
+        quantity,
+        paymentReference
+      );
       
-      // Generar la cantidad de boletos solicitada
-      for (let i = 0; i < quantity; i++) {
-        const newTicket = await createTicket(
-          event.id,
-          event.title,
-          customerName,
-          customerEmail,
-          event.date,
-          event.location,
-          event.price
-        );
-        tickets.push(newTicket);
-      }
-      
-      // Guardamos el primer boleto para mostrarlo
-      setTicket(tickets[0]);
       setStep(3);
       
       toast({
-        title: "¡Compra exitosa!",
-        description: `Se han generado ${quantity} boleto(s) y enviado a tu correo.`,
+        title: "¡Solicitud enviada!",
+        description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`,
       });
     } catch (error) {
       toast({
-        title: "Error en la compra",
-        description: "Ocurrió un error al procesar tu compra. Inténtalo nuevamente.",
+        title: "Error en la solicitud",
+        description: "Ocurrió un error al procesar tu solicitud. Inténtalo nuevamente.",
         variant: "destructive"
       });
     } finally {
@@ -112,7 +103,6 @@ const BuyTicket = () => {
     );
   };
 
-  // Generar un ID de referencia único para la transferencia
   useEffect(() => {
     if (step === 2 && customerName) {
       const date = new Date();
@@ -142,7 +132,6 @@ const BuyTicket = () => {
       <div className="bg-gradient-to-b from-magic-light/50 to-white py-12">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
-            {/* Progress Steps */}
             <div className="mb-8">
               <div className="flex items-center justify-between">
                 <div className={`flex flex-col items-center ${step >= 1 ? 'text-magic' : 'text-magic-dark/40'}`}>
@@ -168,7 +157,6 @@ const BuyTicket = () => {
               </div>
             </div>
 
-            {/* Content based on step */}
             {step === 1 && (
               <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8">
@@ -410,8 +398,12 @@ const BuyTicket = () => {
                     </div>
                     
                     <div className="mt-5 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800">
-                      <p className="text-sm font-medium">
-                        <span className="font-bold">Importante:</span> Incluye la referencia exacta en tu transferencia para que podamos identificar tu pago.
+                      <p className="text-sm font-medium flex items-start">
+                        <Clock className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>
+                          <span className="font-bold">Importante: </span> 
+                          Incluye la referencia exacta en tu transferencia. La verificación del pago toma de 1 a 2 horas y recibirás tus boletos por correo una vez aprobada.
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -420,7 +412,7 @@ const BuyTicket = () => {
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                       <h3 className="font-semibold text-magic-dark mb-2">Una vez realizada tu transferencia:</h3>
                       <p className="text-magic-dark/80 mb-4">
-                        Haz clic en "Confirmar Pago" para generar tus boletos. En una aplicación real, verificaríamos tu pago antes de generar los boletos.
+                        Haz clic en "Confirmar Pago" para registrar tu solicitud. Un administrador verificará tu pago antes de generar los boletos.
                       </p>
                       <div className="flex items-center">
                         <Input
@@ -457,7 +449,7 @@ const BuyTicket = () => {
               </div>
             )}
 
-            {step === 3 && ticket && (
+            {step === 3 && (
               <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8 text-center">
                   <div className="flex justify-center mb-6">
@@ -466,44 +458,39 @@ const BuyTicket = () => {
                     </div>
                   </div>
                   
-                  <h1 className="text-2xl font-bold text-magic-dark mb-2">¡Compra Exitosa!</h1>
-                  <p className="text-magic-dark/70 mb-6">
-                    Tu boleto ha sido generado y enviado a <strong>{customerEmail}</strong>
+                  <h1 className="text-2xl font-bold text-magic-dark mb-2">¡Solicitud Enviada!</h1>
+                  <p className="text-magic-dark/70 mb-8 max-w-md mx-auto">
+                    Hemos registrado tu solicitud de compra. Un administrador verificará tu pago en un periodo de 1 a 2 horas y te enviaremos tus boletos al correo electrónico <strong>{customerEmail}</strong>.
                   </p>
 
-                  <div className="max-w-sm mx-auto mb-8 p-4 border border-magic-light rounded-lg">
-                    <div className="text-center mb-4">
-                      <h3 className="font-bold text-magic-dark">{event.title}</h3>
-                      <p className="text-sm text-magic-dark/70">{event.date} • {event.time}</p>
-                    </div>
-                    
-                    <div className="bg-white p-2 border border-magic-light rounded-lg mb-4">
-                      <img 
-                        src={ticket.qrCode} 
-                        alt="Código QR del boleto" 
-                        className="w-full h-auto"
-                      />
-                    </div>
-                    
-                    <div className="text-center">
-                      <p className="text-xs text-magic-dark/60">ID del boleto:</p>
-                      <p className="font-mono text-sm">{ticket.id}</p>
+                  <div className="bg-magic-light/30 rounded-lg p-4 mb-8 max-w-md mx-auto">
+                    <h3 className="font-semibold text-magic-dark mb-3">Detalles de tu solicitud:</h3>
+                    <div className="text-left space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-magic-dark/70">Referencia:</span>
+                        <span className="font-mono">{paymentReference}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-magic-dark/70">Evento:</span>
+                        <span>{event.title}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-magic-dark/70">Cantidad:</span>
+                        <span>{quantity} boleto(s)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-magic-dark/70">Total:</span>
+                        <span className="font-semibold">${(event.price * quantity).toLocaleString()}</span>
+                      </div>
                     </div>
                   </div>
                   
                   <div className="flex justify-center gap-4">
                     <Button
-                      variant="outline"
                       onClick={() => navigate('/events')}
-                      className="border-magic hover:bg-magic-light"
+                      className="magic-button"
                     >
                       Explorar más eventos
-                    </Button>
-                    <Button 
-                      className="magic-button" 
-                      onClick={() => window.print()}
-                    >
-                      Imprimir Boleto
                     </Button>
                   </div>
                 </div>

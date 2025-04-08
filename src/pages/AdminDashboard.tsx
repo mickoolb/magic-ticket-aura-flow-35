@@ -11,7 +11,11 @@ import {
   validateTicket, 
   Ticket, 
   extractTicketIdFromQR,
-  decodeQRCode
+  decodeQRCode,
+  getPendingTickets,
+  approvePendingTicket,
+  rejectPendingTicket,
+  PendingTicket
 } from '@/utils/ticketUtils';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -23,7 +27,10 @@ import {
   Search,
   Users,
   ShieldCheck,
-  Upload
+  Upload,
+  Clock,
+  ThumbsUp,
+  ThumbsDown
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -31,6 +38,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [pendingTickets, setPendingTickets] = useState<PendingTicket[]>([]);
   const [ticketId, setTicketId] = useState('');
   const [validationResult, setValidationResult] = useState<{
     valid: boolean;
@@ -38,13 +46,17 @@ const AdminDashboard = () => {
     ticket?: Ticket;
   } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [pendingSearchTerm, setPendingSearchTerm] = useState('');
   const [qrImageFile, setQrImageFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isApproving, setIsApproving] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
-    // Load tickets from localStorage
+    // Load tickets and pending tickets
     const loadedTickets = getAllTickets();
+    const loadedPendingTickets = getPendingTickets();
     setTickets(loadedTickets);
+    setPendingTickets(loadedPendingTickets);
   }, [validationResult]);
 
   const handleValidateTicket = () => {
@@ -153,11 +165,71 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleApproveTicket = async (pendingTicket: PendingTicket) => {
+    setIsApproving({...isApproving, [pendingTicket.id]: true});
+    
+    try {
+      await approvePendingTicket(pendingTicket.id);
+      
+      // Reload tickets and pending tickets
+      const loadedTickets = getAllTickets();
+      const loadedPendingTickets = getPendingTickets();
+      setTickets(loadedTickets);
+      setPendingTickets(loadedPendingTickets);
+      
+      toast({
+        title: "Pago aprobado",
+        description: `Se han generado ${pendingTicket.quantity} boleto(s) para ${pendingTicket.customerName}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al aprobar el pago",
+        variant: "destructive"
+      });
+    } finally {
+      setIsApproving({...isApproving, [pendingTicket.id]: false});
+    }
+  };
+
+  const handleRejectTicket = async (pendingTicket: PendingTicket) => {
+    setIsApproving({...isApproving, [pendingTicket.id]: true});
+    
+    try {
+      await rejectPendingTicket(pendingTicket.id);
+      
+      // Reload pending tickets
+      const loadedPendingTickets = getPendingTickets();
+      setPendingTickets(loadedPendingTickets);
+      
+      toast({
+        title: "Pago rechazado",
+        description: `La solicitud de ${pendingTicket.customerName} ha sido rechazada`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al rechazar el pago",
+        variant: "destructive"
+      });
+    } finally {
+      setIsApproving({...isApproving, [pendingTicket.id]: false});
+    }
+  };
+
   const filteredTickets = tickets.filter(ticket => 
     ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ticket.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ticket.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ticket.eventName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredPendingTickets = pendingTickets.filter(ticket => 
+    ticket.id.toLowerCase().includes(pendingSearchTerm.toLowerCase()) ||
+    ticket.customerName.toLowerCase().includes(pendingSearchTerm.toLowerCase()) ||
+    ticket.customerEmail.toLowerCase().includes(pendingSearchTerm.toLowerCase()) ||
+    ticket.eventName.toLowerCase().includes(pendingSearchTerm.toLowerCase()) ||
+    ticket.paymentReference.toLowerCase().includes(pendingSearchTerm.toLowerCase())
   );
 
   if (!isAuthenticated) {
@@ -185,8 +257,12 @@ const AdminDashboard = () => {
             </Button>
           </div>
           
-          <Tabs defaultValue="validate">
+          <Tabs defaultValue="pending">
             <TabsList className="bg-white border border-magic-light">
+              <TabsTrigger value="pending" className="data-[state=active]:bg-magic data-[state=active]:text-white">
+                <Clock className="h-4 w-4 mr-2" />
+                Pagos Pendientes
+              </TabsTrigger>
               <TabsTrigger value="validate" className="data-[state=active]:bg-magic data-[state=active]:text-white">
                 <QrCode className="h-4 w-4 mr-2" />
                 Validar Boletos
@@ -201,6 +277,85 @@ const AdminDashboard = () => {
               </TabsTrigger>
             </TabsList>
             
+            {/* Nueva pestaña de Pagos Pendientes */}
+            <TabsContent value="pending" className="mt-6">
+              <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-magic-dark">Pagos Pendientes de Aprobación</h2>
+                  <div className="relative w-64">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
+                    <Input
+                      placeholder="Buscar solicitudes..."
+                      value={pendingSearchTerm}
+                      onChange={(e) => setPendingSearchTerm(e.target.value)}
+                      className="pl-10 border-magic-light"
+                    />
+                  </div>
+                </div>
+                
+                {filteredPendingTickets.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-magic-light/30 text-magic-dark">
+                        <tr>
+                          <th className="px-4 py-3 text-left">Referencia</th>
+                          <th className="px-4 py-3 text-left">Evento</th>
+                          <th className="px-4 py-3 text-left">Cliente</th>
+                          <th className="px-4 py-3 text-left">Email</th>
+                          <th className="px-4 py-3 text-left">Cantidad</th>
+                          <th className="px-4 py-3 text-left">Monto</th>
+                          <th className="px-4 py-3 text-left">Fecha Solicitud</th>
+                          <th className="px-4 py-3 text-center">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-magic-light/50">
+                        {filteredPendingTickets.map((pendingTicket) => (
+                          <tr key={pendingTicket.id} className="hover:bg-magic-light/20">
+                            <td className="px-4 py-3 font-mono">{pendingTicket.paymentReference}</td>
+                            <td className="px-4 py-3">{pendingTicket.eventName}</td>
+                            <td className="px-4 py-3">{pendingTicket.customerName}</td>
+                            <td className="px-4 py-3">{pendingTicket.customerEmail}</td>
+                            <td className="px-4 py-3 text-center">{pendingTicket.quantity}</td>
+                            <td className="px-4 py-3">${(pendingTicket.price * pendingTicket.quantity).toLocaleString()}</td>
+                            <td className="px-4 py-3">{new Date(pendingTicket.requestDate).toLocaleString()}</td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex items-center gap-1 bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+                                  onClick={() => handleApproveTicket(pendingTicket)}
+                                  disabled={isApproving[pendingTicket.id]}
+                                >
+                                  <ThumbsUp className="h-3 w-3" />
+                                  {isApproving[pendingTicket.id] ? 'Procesando' : 'Aprobar'}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex items-center gap-1 bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
+                                  onClick={() => handleRejectTicket(pendingTicket)}
+                                  disabled={isApproving[pendingTicket.id]}
+                                >
+                                  <ThumbsDown className="h-3 w-3" />
+                                  Rechazar
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-magic-dark/50">
+                    No hay pagos pendientes de aprobación. {pendingSearchTerm ? 'Intenta con otra búsqueda.' : ''}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            {/* Pestaña de Validar Boletos */}
             <TabsContent value="validate" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
@@ -317,6 +472,7 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
+            {/* Pestaña de Boletos */}
             <TabsContent value="tickets" className="mt-6">
               <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
                 <div className="flex justify-between items-center mb-6">
@@ -371,6 +527,7 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
+            {/* Pestaña de Seguridad */}
             <TabsContent value="security" className="mt-6">
               <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
                 <h2 className="text-xl font-bold text-magic-dark mb-4">Administración de Seguridad</h2>
