@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -6,6 +5,8 @@ import Layout from '@/components/Layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { 
   getAllTickets, 
   validateTicket, 
@@ -15,7 +16,8 @@ import {
   getPendingTickets,
   approvePendingTicket,
   rejectPendingTicket,
-  PendingTicket
+  PendingTicket,
+  getUserTickets
 } from '@/utils/ticketUtils';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -30,7 +32,8 @@ import {
   Upload,
   Clock,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  Eye
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -50,9 +53,11 @@ const AdminDashboard = () => {
   const [qrImageFile, setQrImageFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isApproving, setIsApproving] = useState<{[key: string]: boolean}>({});
+  const [selectedTickets, setSelectedTickets] = useState<Ticket[]>([]);
+  const [showTicketsDialog, setShowTicketsDialog] = useState(false);
+  const [selectedCustomerEmail, setSelectedCustomerEmail] = useState('');
 
   useEffect(() => {
-    // Load tickets and pending tickets
     const loadedTickets = getAllTickets();
     const loadedPendingTickets = getPendingTickets();
     setTickets(loadedTickets);
@@ -98,25 +103,20 @@ const AdminDashboard = () => {
     setIsProcessing(true);
 
     try {
-      // Read the file as a data URL
       const reader = new FileReader();
       
       reader.onload = async (event) => {
         if (event.target && event.target.result) {
           const imageDataUrl = event.target.result.toString();
           
-          // Decode the QR code
           const qrData = await decodeQRCode(imageDataUrl);
           
           if (qrData) {
-            // Extract the ticket ID from the QR data
             const extractedTicketId = extractTicketIdFromQR(qrData);
             
             if (extractedTicketId) {
-              // Set the extracted ID and validate it
               setTicketId(extractedTicketId);
               
-              // For demo purposes, we'll validate the ticket right away
               const result = validateTicket(extractedTicketId);
               setValidationResult(result);
               
@@ -171,7 +171,6 @@ const AdminDashboard = () => {
     try {
       await approvePendingTicket(pendingTicket.id);
       
-      // Reload tickets and pending tickets
       const loadedTickets = getAllTickets();
       const loadedPendingTickets = getPendingTickets();
       setTickets(loadedTickets);
@@ -198,7 +197,6 @@ const AdminDashboard = () => {
     try {
       await rejectPendingTicket(pendingTicket.id);
       
-      // Reload pending tickets
       const loadedPendingTickets = getPendingTickets();
       setPendingTickets(loadedPendingTickets);
       
@@ -215,6 +213,13 @@ const AdminDashboard = () => {
     } finally {
       setIsApproving({...isApproving, [pendingTicket.id]: false});
     }
+  };
+
+  const viewGeneratedTickets = (customerEmail: string) => {
+    const userTickets = getUserTickets(customerEmail);
+    setSelectedTickets(userTickets);
+    setSelectedCustomerEmail(customerEmail);
+    setShowTicketsDialog(true);
   };
 
   const filteredTickets = tickets.filter(ticket => 
@@ -277,7 +282,6 @@ const AdminDashboard = () => {
               </TabsTrigger>
             </TabsList>
             
-            {/* Nueva pestaña de Pagos Pendientes */}
             <TabsContent value="pending" className="mt-6">
               <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
                 <div className="flex justify-between items-center mb-6">
@@ -320,26 +324,44 @@ const AdminDashboard = () => {
                             <td className="px-4 py-3">{new Date(pendingTicket.requestDate).toLocaleString()}</td>
                             <td className="px-4 py-3">
                               <div className="flex justify-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="flex items-center gap-1 bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
-                                  onClick={() => handleApproveTicket(pendingTicket)}
-                                  disabled={isApproving[pendingTicket.id]}
-                                >
-                                  <ThumbsUp className="h-3 w-3" />
-                                  {isApproving[pendingTicket.id] ? 'Procesando' : 'Aprobar'}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="flex items-center gap-1 bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
-                                  onClick={() => handleRejectTicket(pendingTicket)}
-                                  disabled={isApproving[pendingTicket.id]}
-                                >
-                                  <ThumbsDown className="h-3 w-3" />
-                                  Rechazar
-                                </Button>
+                                {pendingTicket.status === 'pending' && (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="flex items-center gap-1 bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+                                      onClick={() => handleApproveTicket(pendingTicket)}
+                                      disabled={isApproving[pendingTicket.id]}
+                                    >
+                                      <ThumbsUp className="h-3 w-3" />
+                                      {isApproving[pendingTicket.id] ? 'Procesando' : 'Aprobar'}
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="flex items-center gap-1 bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
+                                      onClick={() => handleRejectTicket(pendingTicket)}
+                                      disabled={isApproving[pendingTicket.id]}
+                                    >
+                                      <ThumbsDown className="h-3 w-3" />
+                                      Rechazar
+                                    </Button>
+                                  </>
+                                )}
+                                {pendingTicket.status === 'approved' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-1 bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700"
+                                    onClick={() => viewGeneratedTickets(pendingTicket.customerEmail)}
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                    Ver Boletos
+                                  </Button>
+                                )}
+                                {pendingTicket.status === 'rejected' && (
+                                  <span className="text-red-500 text-xs">Rechazado</span>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -355,7 +377,6 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
-            {/* Pestaña de Validar Boletos */}
             <TabsContent value="validate" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
@@ -472,7 +493,6 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
-            {/* Pestaña de Boletos */}
             <TabsContent value="tickets" className="mt-6">
               <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
                 <div className="flex justify-between items-center mb-6">
@@ -527,7 +547,6 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
-            {/* Pestaña de Seguridad */}
             <TabsContent value="security" className="mt-6">
               <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
                 <h2 className="text-xl font-bold text-magic-dark mb-4">Administración de Seguridad</h2>
@@ -580,6 +599,116 @@ const AdminDashboard = () => {
           </Tabs>
         </div>
       </div>
+
+      <Dialog open={showTicketsDialog} onOpenChange={setShowTicketsDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Boletos Generados</DialogTitle>
+            <DialogDescription>
+              Boletos generados para: {selectedCustomerEmail}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTickets.length > 0 ? (
+            <div className="overflow-y-auto max-h-[70vh]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID Boleto</TableHead>
+                    <TableHead>Evento</TableHead>
+                    <TableHead>Fecha Evento</TableHead>
+                    <TableHead>Lugar</TableHead>
+                    <TableHead>Precio</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedTickets.map((ticket) => (
+                    <TableRow key={ticket.id}>
+                      <TableCell className="font-mono text-xs">{ticket.id}</TableCell>
+                      <TableCell>{ticket.eventName}</TableCell>
+                      <TableCell>{new Date(ticket.eventDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{ticket.eventLocation}</TableCell>
+                      <TableCell>${ticket.price.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${ticket.used ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                          {ticket.used ? 'Utilizado' : 'No utilizado'}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Dialog>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex items-center gap-1 bg-magic-light border-magic hover:bg-magic/10 text-magic-dark"
+                            onClick={() => {
+                              console.log(`Ver boleto: ${ticket.id}`);
+                            }}
+                          >
+                            <Eye className="h-3 w-3" />
+                            Ver Detalle
+                          </Button>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Boleto: {ticket.id}</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="mx-auto w-64 h-64 flex items-center justify-center">
+                                <img src={ticket.qrCode} alt="QR Code" className="w-full h-full object-contain" />
+                              </div>
+                              <div className="bg-magic-light/30 rounded-lg p-4 space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Evento:</span>
+                                  <span>{ticket.eventName}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Asistente:</span>
+                                  <span>{ticket.customerName}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Email:</span>
+                                  <span>{ticket.customerEmail}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Fecha Evento:</span>
+                                  <span>{new Date(ticket.eventDate).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Lugar:</span>
+                                  <span>{ticket.eventLocation}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Precio:</span>
+                                  <span>${ticket.price.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Fecha de compra:</span>
+                                  <span>{new Date(ticket.purchaseDate).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold">Estado:</span>
+                                  <span className={ticket.used ? 'text-red-500' : 'text-green-500'}>
+                                    {ticket.used ? 'Utilizado' : 'No utilizado'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-magic-dark/70">
+              No se encontraron boletos para este cliente.
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
