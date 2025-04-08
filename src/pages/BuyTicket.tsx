@@ -16,7 +16,9 @@ import {
   User, 
   Minus, 
   Plus,
-  CheckCircle2
+  CheckCircle2,
+  CopyIcon,
+  AlertCircle
 } from 'lucide-react';
 
 const BuyTicket = () => {
@@ -33,6 +35,7 @@ const BuyTicket = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1); // 1: Details, 2: Payment, 3: Confirmation
   const [ticket, setTicket] = useState<any>(null);
+  const [paymentReference, setPaymentReference] = useState('');
   
   useEffect(() => {
     if (!event && eventId) {
@@ -53,24 +56,31 @@ const BuyTicket = () => {
     try {
       setIsSubmitting(true);
       
-      // In a real app, this would process payment first
-      // For this demo, we'll just create the ticket
-      const newTicket = await createTicket(
-        event.id,
-        event.title,
-        customerName,
-        customerEmail,
-        event.date,
-        event.location,
-        event.price
-      );
+      // En una aplicación real, aquí verificaríamos que la transferencia se ha realizado
+      // Para esta demo, simplemente generamos los boletos
+      const tickets = [];
       
-      setTicket(newTicket);
+      // Generar la cantidad de boletos solicitada
+      for (let i = 0; i < quantity; i++) {
+        const newTicket = await createTicket(
+          event.id,
+          event.title,
+          customerName,
+          customerEmail,
+          event.date,
+          event.location,
+          event.price
+        );
+        tickets.push(newTicket);
+      }
+      
+      // Guardamos el primer boleto para mostrarlo
+      setTicket(tickets[0]);
       setStep(3);
       
       toast({
         title: "¡Compra exitosa!",
-        description: "Tu boleto ha sido generado y enviado a tu correo.",
+        description: `Se han generado ${quantity} boleto(s) y enviado a tu correo.`,
       });
     } catch (error) {
       toast({
@@ -82,6 +92,34 @@ const BuyTicket = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleCopyToClipboard = (text: string, message: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        toast({
+          title: "Copiado",
+          description: message,
+        });
+      },
+      (err) => {
+        console.error('Error al copiar: ', err);
+        toast({
+          title: "Error",
+          description: "No se pudo copiar el texto",
+          variant: "destructive"
+        });
+      }
+    );
+  };
+
+  // Generar un ID de referencia único para la transferencia
+  useEffect(() => {
+    if (step === 2 && customerName) {
+      const date = new Date();
+      const reference = `MT-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${customerName.substring(0, 3).toUpperCase()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+      setPaymentReference(reference);
+    }
+  }, [step, customerName]);
 
   if (!event) {
     return (
@@ -245,7 +283,7 @@ const BuyTicket = () => {
             {step === 2 && (
               <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8">
-                  <h1 className="text-2xl font-bold text-magic-dark mb-6">Información de Pago</h1>
+                  <h1 className="text-2xl font-bold text-magic-dark mb-6">Información de Pago por Transferencia</h1>
                   
                   <div className="mb-6 space-y-4">
                     <div className="p-4 bg-magic-light/30 rounded-lg">
@@ -257,54 +295,143 @@ const BuyTicket = () => {
                     </div>
                   </div>
                   
+                  <div className="bg-magic-light/10 border border-magic-light/50 rounded-lg p-5 mb-6">
+                    <div className="flex items-center text-magic mb-4">
+                      <AlertCircle className="mr-2 h-5 w-5" />
+                      <h3 className="font-medium">Instrucciones de pago</h3>
+                    </div>
+                    
+                    <p className="text-magic-dark/80 mb-4">
+                      Para completar tu compra, realiza una transferencia bancaria con los siguientes datos:
+                    </p>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">Banco:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">Banco MagicTicket</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 ml-2"
+                              onClick={() => handleCopyToClipboard("Banco MagicTicket", "Nombre del banco copiado")}
+                            >
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">Titular:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">MagicTicket S.A.</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 ml-2"
+                              onClick={() => handleCopyToClipboard("MagicTicket S.A.", "Nombre del titular copiado")}
+                            >
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">Cuenta:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">1234-5678-9012-3456</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 ml-2"
+                              onClick={() => handleCopyToClipboard("1234-5678-9012-3456", "Número de cuenta copiado")}
+                            >
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">CLABE:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">012345678901234567</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 ml-2"
+                              onClick={() => handleCopyToClipboard("012345678901234567", "CLABE copiada")}
+                            >
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">Monto:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold text-magic">${(event.price * quantity).toLocaleString()}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 ml-2"
+                              onClick={() => handleCopyToClipboard(`${(event.price * quantity).toLocaleString()}`, "Monto copiado")}
+                            >
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">Referencia:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold text-magic">{paymentReference}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 ml-2"
+                              onClick={() => handleCopyToClipboard(paymentReference, "Referencia copiada")}
+                            >
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-5 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800">
+                      <p className="text-sm font-medium">
+                        <span className="font-bold">Importante:</span> Incluye la referencia exacta en tu transferencia para que podamos identificar tu pago.
+                      </p>
+                    </div>
+                  </div>
+                  
                   <form onSubmit={handlePurchase}>
-                    <div className="space-y-4 mb-6">
-                      <div>
-                        <Label htmlFor="cardname">Nombre en la Tarjeta</Label>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                      <h3 className="font-semibold text-magic-dark mb-2">Una vez realizada tu transferencia:</h3>
+                      <p className="text-magic-dark/80 mb-4">
+                        Haz clic en "Confirmar Pago" para generar tus boletos. En una aplicación real, verificaríamos tu pago antes de generar los boletos.
+                      </p>
+                      <div className="flex items-center">
                         <Input
-                          id="cardname"
-                          type="text"
-                          placeholder="Nombre como aparece en la tarjeta"
-                          className="border-magic-light"
+                          type="checkbox"
+                          id="payment-confirmation"
+                          className="w-4 h-4 mr-2"
                           required
                         />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="cardnumber">Número de Tarjeta</Label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
-                          <Input
-                            id="cardnumber"
-                            type="text"
-                            placeholder="1234 5678 9012 3456"
-                            className="pl-10 border-magic-light"
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="expiry">Fecha de Expiración</Label>
-                          <Input
-                            id="expiry"
-                            type="text"
-                            placeholder="MM/AA"
-                            className="border-magic-light"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="cvc">CVC</Label>
-                          <Input
-                            id="cvc"
-                            type="text"
-                            placeholder="123"
-                            className="border-magic-light"
-                            required
-                          />
-                        </div>
+                        <Label htmlFor="payment-confirmation">
+                          Confirmo que he realizado la transferencia por ${(event.price * quantity).toLocaleString()}
+                        </Label>
                       </div>
                     </div>
                     
@@ -322,7 +449,7 @@ const BuyTicket = () => {
                         className="magic-button" 
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? 'Procesando...' : 'Completar Compra'}
+                        {isSubmitting ? 'Procesando...' : 'Confirmar Pago'}
                       </Button>
                     </div>
                   </form>
