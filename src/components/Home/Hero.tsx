@@ -3,6 +3,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { events } from '@/data/events';
+
+const featuredEvent = events[0];
 
 const Hero = () => {
   return (
@@ -16,29 +19,29 @@ const Hero = () => {
           <div className="space-y-6">
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-magic-light text-magic animate-pulse-soft">
               <Sparkles className="h-4 w-4 mr-2" />
-              <span className="text-sm font-medium">Eventos Espirituales</span>
+              <span className="text-sm font-medium">Evento Especial en Chile</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-magic-dark leading-tight">
-              Experiencias mágicas con{' '}
+              Experiencia mágica en{' '}
               <span className="bg-gradient-to-r from-magic to-magic-dark bg-clip-text text-transparent">
-                MagicTicket
+                Cascada de las Ánimas
               </span>
             </h1>
             
             <p className="text-lg text-magic-dark/80 max-w-lg">
-              Tu portal hacia eventos espirituales transformadores. Compra boletos de manera segura y vive experiencias inolvidables.
+              Vive una experiencia espiritual transformadora en uno de los entornos naturales más hermosos de Chile. Compra tu boleto de manera segura.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild className="magic-button">
-                <Link to="/buy">
-                  Comprar Boletos
+                <Link to="/buy?event=1">
+                  Comprar Boleto
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" className="border-magic hover:bg-magic-light transition-colors">
-                <Link to="/events">Ver Eventos</Link>
+                <Link to="/events/1">Ver Detalles</Link>
               </Button>
             </div>
           </div>
@@ -46,14 +49,14 @@ const Hero = () => {
           <div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-magic-light shadow-xl animate-float">
             <div className="aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-magic-light to-white flex items-center justify-center">
               <img 
-                src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=600" 
-                alt="Experiencia espiritual" 
+                src={featuredEvent.image}
+                alt="Cascada de las Ánimas" 
                 className="w-full h-full object-cover rounded-lg opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-magic-dark/40 to-transparent flex items-end p-6">
                 <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Próximo Evento</h3>
-                  <p className="opacity-90">Retiro de Meditación y Sanación - 25 Oct</p>
+                  <h3 className="text-xl font-bold mb-2">Retiro Espiritual</h3>
+                  <p className="opacity-90">{featuredEvent.date}</p>
                 </div>
               </div>
             </div>
