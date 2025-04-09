@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import TicketFAQ from '@/components/FAQ/TicketFAQ';
 import { 
   Calendar, 
   MapPin, 
@@ -18,7 +19,8 @@ import {
   CheckCircle2,
   CopyIcon,
   AlertCircle,
-  Clock
+  Clock,
+  X
 } from 'lucide-react';
 
 const BuyTicket = () => {
@@ -158,114 +160,129 @@ const BuyTicket = () => {
             </div>
 
             {step === 1 && (
-              <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
-                <div className="p-6 md:p-8">
-                  <h1 className="text-2xl font-bold text-magic-dark mb-6">Detalles del Boleto</h1>
-                  
-                  <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center text-magic-dark/80">
-                        <Calendar className="h-5 w-5 mr-3 text-magic" />
-                        <div>
-                          <div className="font-medium">Evento</div>
-                          <div className="font-semibold text-magic-dark">{event.title}</div>
+              <>
+                <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
+                  <div className="p-6 md:p-8">
+                    <h1 className="text-2xl font-bold text-magic-dark mb-6">Detalles del Boleto</h1>
+                    
+                    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center text-magic-dark/80">
+                          <Calendar className="h-5 w-5 mr-3 text-magic" />
+                          <div>
+                            <div className="font-medium">Evento</div>
+                            <div className="font-semibold text-magic-dark">{event.title}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-magic-dark/80">
+                          <Calendar className="h-5 w-5 mr-3 text-magic" />
+                          <div>
+                            <div className="font-medium">Fecha</div>
+                            <div>{event.date}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-magic-dark/80">
+                          <MapPin className="h-5 w-5 mr-3 text-magic" />
+                          <div>
+                            <div className="font-medium">Ubicación</div>
+                            <div>{event.location}</div>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center text-magic-dark/80">
-                        <Calendar className="h-5 w-5 mr-3 text-magic" />
-                        <div>
-                          <div className="font-medium">Fecha</div>
-                          <div>{event.date}</div>
+                      
+                      <div className="bg-magic-light/30 rounded-lg p-4">
+                        <h3 className="font-semibold text-magic-dark mb-3">Resumen de compra</h3>
+                        <div className="flex justify-between items-center mb-3">
+                          <span>Precio por boleto:</span>
+                          <span className="font-semibold">${event.price.toLocaleString()}</span>
                         </div>
-                      </div>
-                      <div className="flex items-center text-magic-dark/80">
-                        <MapPin className="h-5 w-5 mr-3 text-magic" />
-                        <div>
-                          <div className="font-medium">Ubicación</div>
-                          <div>{event.location}</div>
+                        <div className="flex justify-between items-center mb-4">
+                          <span>Cantidad:</span>
+                          <div className="flex items-center">
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-full"
+                              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                              disabled={quantity <= 1}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="mx-3 font-semibold">{quantity}</span>
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-full"
+                              onClick={() => setQuantity(prev => Math.min(event.availableTickets, prev + 1))}
+                              disabled={quantity >= event.availableTickets}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="border-t border-magic-light/50 pt-3 flex justify-between items-center">
+                          <span className="font-semibold">Total:</span>
+                          <span className="text-xl font-bold text-magic">${(event.price * quantity).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="bg-magic-light/30 rounded-lg p-4">
-                      <h3 className="font-semibold text-magic-dark mb-3">Resumen de compra</h3>
-                      <div className="flex justify-between items-center mb-3">
-                        <span>Precio por boleto:</span>
-                        <span className="font-semibold">${event.price.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center mb-4">
-                        <span>Cantidad:</span>
-                        <div className="flex items-center">
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                            disabled={quantity <= 1}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="mx-3 font-semibold">{quantity}</span>
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => setQuantity(prev => Math.min(event.availableTickets, prev + 1))}
-                            disabled={quantity >= event.availableTickets}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="border-t border-magic-light/50 pt-3 flex justify-between items-center">
-                        <span className="font-semibold">Total:</span>
-                        <span className="text-xl font-bold text-magic">${(event.price * quantity).toLocaleString()}</span>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                      <h3 className="font-semibold text-magic-dark mb-2 flex items-center">
+                        <AlertCircle className="h-5 w-5 mr-2 text-yellow-600" />
+                        Puntos Importantes
+                      </h3>
+                      <div className="flex items-start mt-2">
+                        <X className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <p className="text-magic-dark/80">No hay cambio o devolución de entrada</p>
                       </div>
                     </div>
+                    
+                    <form onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
+                      <div className="space-y-4 mb-6">
+                        <div>
+                          <Label htmlFor="name">Nombre Completo</Label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
+                            <Input
+                              id="name"
+                              type="text"
+                              placeholder="Tu nombre completo"
+                              className="pl-10 border-magic-light"
+                              value={customerName}
+                              onChange={(e) => setCustomerName(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Correo Electrónico</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="Para recibir tu boleto"
+                              className="pl-10 border-magic-light"
+                              value={customerEmail}
+                              onChange={(e) => setCustomerEmail(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Button type="submit" className="magic-button">
+                          Continuar al Pago
+                        </Button>
+                      </div>
+                    </form>
                   </div>
-                  
-                  <form onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
-                    <div className="space-y-4 mb-6">
-                      <div>
-                        <Label htmlFor="name">Nombre Completo</Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
-                          <Input
-                            id="name"
-                            type="text"
-                            placeholder="Tu nombre completo"
-                            className="pl-10 border-magic-light"
-                            value={customerName}
-                            onChange={(e) => setCustomerName(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="email">Correo Electrónico</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="Para recibir tu boleto"
-                            className="pl-10 border-magic-light"
-                            value={customerEmail}
-                            onChange={(e) => setCustomerEmail(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Button type="submit" className="magic-button">
-                        Continuar al Pago
-                      </Button>
-                    </div>
-                  </form>
                 </div>
-              </div>
+                
+                <TicketFAQ />
+              </>
             )}
 
             {step === 2 && (
