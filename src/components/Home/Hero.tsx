@@ -23,14 +23,14 @@ const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-magic-dark leading-tight">
-              Experiencia mágica en{' '}
+              Entre Diosas y{' '}
               <span className="bg-gradient-to-r from-magic to-magic-dark bg-clip-text text-transparent">
-                Cascada de las Ánimas
+                Volcanes
               </span>
             </h1>
             
             <p className="text-lg text-magic-dark/80 max-w-lg">
-              Vive una experiencia espiritual transformadora en uno de los entornos naturales más hermosos de Chile. Compra tu boleto de manera segura.
+              Un evento único con música, baile y karaoke en uno de los entornos naturales más hermosos de Chile. Compra tu boleto por solo $5,900.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
@@ -55,7 +55,7 @@ const Hero = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-magic-dark/40 to-transparent flex items-end p-6">
                 <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Retiro Espiritual</h3>
+                  <h3 className="text-xl font-bold mb-2">Entre Diosas y Volcanes</h3>
                   <p className="opacity-90">{featuredEvent.date}</p>
                 </div>
               </div>

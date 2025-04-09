@@ -17,7 +17,7 @@ const FeaturedEvents = () => {
             Evento Especial
           </h2>
           <p className="text-magic-dark/70 max-w-2xl mx-auto">
-            No te pierdas esta experiencia transformadora que elevará tu conciencia y nutrirá tu espíritu
+            No te pierdas "Entre Diosas y Volcanes", un evento único con música, baile y karaoke en un entorno natural espectacular
           </p>
         </div>
 
