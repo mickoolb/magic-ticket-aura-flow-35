@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
@@ -269,6 +270,17 @@ const BuyTicket = () => {
                               required
                             />
                           </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-magic-light/20 border border-magic-light/40 rounded-lg p-4 mb-6">
+                        <h3 className="font-semibold text-magic-dark mb-2 flex items-center">
+                          <AlertCircle className="h-5 w-5 mr-2 text-magic" />
+                          Puntos Importantes
+                        </h3>
+                        <div className="flex items-start mt-2">
+                          <X className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                          <p className="text-magic-dark/80">No hay cambio o devolución de entrada</p>
                         </div>
                       </div>
                       
