@@ -31,14 +31,14 @@ const features = [
 
 const Features = () => {
   return (
-    <section className="py-12 md:py-24">
+    <section className="py-12 md:py-24 bg-magic-light/20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-magic-dark mb-4">
-            ¿Por qué elegir MagicTicket?
+            ¿Por qué comprar con MagicTicket?
           </h2>
           <p className="text-magic-dark/70 max-w-2xl mx-auto">
-            Creamos una experiencia segura y espiritual para la compra de tus boletos a eventos transformadores
+            Te ofrecemos una experiencia segura y confiable para que disfrutes de "Entre Diosas y Volcanes" sin preocupaciones
           </p>
         </div>
 
