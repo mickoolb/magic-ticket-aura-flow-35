@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
@@ -9,36 +8,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import TicketFAQ from '@/components/FAQ/TicketFAQ';
-import { 
-  Calendar, 
-  MapPin, 
-  CreditCard, 
-  Mail, 
-  User, 
-  Minus, 
-  Plus,
-  CheckCircle2,
-  CopyIcon,
-  AlertCircle,
-  Clock,
-  X
-} from 'lucide-react';
-
+import { Calendar, MapPin, CreditCard, Mail, User, Minus, Plus, CheckCircle2, CopyIcon, AlertCircle, Clock, X } from 'lucide-react';
 const BuyTicket = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const eventId = searchParams.get('event');
   const event = eventId ? getEvent(eventId) : null;
-  
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1); // 1: Details, 2: Payment, 3: Confirmation
   const [paymentReference, setPaymentReference] = useState('');
-  
   useEffect(() => {
     if (!event && eventId) {
       toast({
@@ -49,32 +33,16 @@ const BuyTicket = () => {
       navigate('/events');
     }
   }, [event, eventId, navigate, toast]);
-
   const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!event) return;
-    
     try {
       setIsSubmitting(true);
-      
-      const pendingTicketInfo = await createPendingTicket(
-        event.id,
-        event.title,
-        customerName,
-        customerEmail,
-        event.date,
-        event.location,
-        event.price,
-        quantity,
-        paymentReference
-      );
-      
+      const pendingTicketInfo = await createPendingTicket(event.id, event.title, customerName, customerEmail, event.date, event.location, event.price, quantity, paymentReference);
       setStep(3);
-      
       toast({
         title: "¡Solicitud enviada!",
-        description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`,
+        description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`
       });
     } catch (error) {
       toast({
@@ -86,26 +54,21 @@ const BuyTicket = () => {
       setIsSubmitting(false);
     }
   };
-
   const handleCopyToClipboard = (text: string, message: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        toast({
-          title: "Copiado",
-          description: message,
-        });
-      },
-      (err) => {
-        console.error('Error al copiar: ', err);
-        toast({
-          title: "Error",
-          description: "No se pudo copiar el texto",
-          variant: "destructive"
-        });
-      }
-    );
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copiado",
+        description: message
+      });
+    }, err => {
+      console.error('Error al copiar: ', err);
+      toast({
+        title: "Error",
+        description: "No se pudo copiar el texto",
+        variant: "destructive"
+      });
+    });
   };
-
   useEffect(() => {
     if (step === 2 && customerName) {
       const date = new Date();
@@ -113,10 +76,8 @@ const BuyTicket = () => {
       setPaymentReference(reference);
     }
   }, [step, customerName]);
-
   if (!event) {
-    return (
-      <Layout>
+    return <Layout>
         <div className="container mx-auto px-4 md:px-6 py-12">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-magic-dark">Selecciona un evento</h1>
@@ -126,12 +87,9 @@ const BuyTicket = () => {
             </Button>
           </div>
         </div>
-      </Layout>
-    );
+      </Layout>;
   }
-
-  return (
-    <Layout>
+  return <Layout>
       <div className="bg-gradient-to-b from-magic-light/50 to-white py-12">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
@@ -160,8 +118,7 @@ const BuyTicket = () => {
               </div>
             </div>
 
-            {step === 1 && (
-              <>
+            {step === 1 && <>
                 <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                   <div className="p-6 md:p-8">
                     <h1 className="text-2xl font-bold text-magic-dark mb-6">Detalles del Boleto</h1>
@@ -200,23 +157,11 @@ const BuyTicket = () => {
                         <div className="flex justify-between items-center mb-4">
                           <span>Cantidad:</span>
                           <div className="flex items-center">
-                            <Button 
-                              variant="outline" 
-                              size="icon" 
-                              className="h-8 w-8 rounded-full"
-                              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                              disabled={quantity <= 1}
-                            >
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQuantity(prev => Math.max(1, prev - 1))} disabled={quantity <= 1}>
                               <Minus className="h-3 w-3" />
                             </Button>
                             <span className="mx-3 font-semibold">{quantity}</span>
-                            <Button 
-                              variant="outline" 
-                              size="icon" 
-                              className="h-8 w-8 rounded-full"
-                              onClick={() => setQuantity(prev => Math.min(event.availableTickets, prev + 1))}
-                              disabled={quantity >= event.availableTickets}
-                            >
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQuantity(prev => Math.min(event.availableTickets, prev + 1))} disabled={quantity >= event.availableTickets}>
                               <Plus className="h-3 w-3" />
                             </Button>
                           </div>
@@ -228,47 +173,25 @@ const BuyTicket = () => {
                       </div>
                     </div>
                     
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                      <h3 className="font-semibold text-magic-dark mb-2 flex items-center">
-                        <AlertCircle className="h-5 w-5 mr-2 text-yellow-600" />
-                        Puntos Importantes
-                      </h3>
-                      <div className="flex items-start mt-2">
-                        <X className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <p className="text-magic-dark/80">No hay cambio o devolución de entrada</p>
-                      </div>
-                    </div>
                     
-                    <form onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
+                    
+                    <form onSubmit={e => {
+                  e.preventDefault();
+                  setStep(2);
+                }}>
                       <div className="space-y-4 mb-6">
                         <div>
                           <Label htmlFor="name">Nombre Completo</Label>
                           <div className="relative">
                             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
-                            <Input
-                              id="name"
-                              type="text"
-                              placeholder="Tu nombre completo"
-                              className="pl-10 border-magic-light"
-                              value={customerName}
-                              onChange={(e) => setCustomerName(e.target.value)}
-                              required
-                            />
+                            <Input id="name" type="text" placeholder="Tu nombre completo" className="pl-10 border-magic-light" value={customerName} onChange={e => setCustomerName(e.target.value)} required />
                           </div>
                         </div>
                         <div>
                           <Label htmlFor="email">Correo Electrónico</Label>
                           <div className="relative">
                             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
-                            <Input
-                              id="email"
-                              type="email"
-                              placeholder="Para recibir tu boleto"
-                              className="pl-10 border-magic-light"
-                              value={customerEmail}
-                              onChange={(e) => setCustomerEmail(e.target.value)}
-                              required
-                            />
+                            <Input id="email" type="email" placeholder="Para recibir tu boleto" className="pl-10 border-magic-light" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} required />
                           </div>
                         </div>
                       </div>
@@ -294,11 +217,9 @@ const BuyTicket = () => {
                 </div>
                 
                 <TicketFAQ />
-              </>
-            )}
+              </>}
 
-            {step === 2 && (
-              <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
+            {step === 2 && <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8">
                   <h1 className="text-2xl font-bold text-magic-dark mb-6">Información de Pago por Transferencia</h1>
                   
@@ -328,12 +249,7 @@ const BuyTicket = () => {
                           <span className="text-magic-dark/70">Banco:</span>
                           <div className="flex items-center">
                             <span className="font-semibold">Banco MagicTicket</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 ml-2"
-                              onClick={() => handleCopyToClipboard("Banco MagicTicket", "Nombre del banco copiado")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Banco MagicTicket", "Nombre del banco copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -345,12 +261,7 @@ const BuyTicket = () => {
                           <span className="text-magic-dark/70">Titular:</span>
                           <div className="flex items-center">
                             <span className="font-semibold">MagicTicket S.A.</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 ml-2"
-                              onClick={() => handleCopyToClipboard("MagicTicket S.A.", "Nombre del titular copiado")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("MagicTicket S.A.", "Nombre del titular copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -362,12 +273,7 @@ const BuyTicket = () => {
                           <span className="text-magic-dark/70">Cuenta:</span>
                           <div className="flex items-center">
                             <span className="font-semibold">1234-5678-9012-3456</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 ml-2"
-                              onClick={() => handleCopyToClipboard("1234-5678-9012-3456", "Número de cuenta copiado")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("1234-5678-9012-3456", "Número de cuenta copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -379,12 +285,7 @@ const BuyTicket = () => {
                           <span className="text-magic-dark/70">CLABE:</span>
                           <div className="flex items-center">
                             <span className="font-semibold">012345678901234567</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 ml-2"
-                              onClick={() => handleCopyToClipboard("012345678901234567", "CLABE copiada")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("012345678901234567", "CLABE copiada")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -396,12 +297,7 @@ const BuyTicket = () => {
                           <span className="text-magic-dark/70">Monto:</span>
                           <div className="flex items-center">
                             <span className="font-semibold text-magic">${(event.price * quantity).toLocaleString()}</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 ml-2"
-                              onClick={() => handleCopyToClipboard(`${(event.price * quantity).toLocaleString()}`, "Monto copiado")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard(`${(event.price * quantity).toLocaleString()}`, "Monto copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -413,12 +309,7 @@ const BuyTicket = () => {
                           <span className="text-magic-dark/70">Referencia:</span>
                           <div className="flex items-center">
                             <span className="font-semibold text-magic">{paymentReference}</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 ml-2"
-                              onClick={() => handleCopyToClipboard(paymentReference, "Referencia copiada")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard(paymentReference, "Referencia copiada")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -444,12 +335,7 @@ const BuyTicket = () => {
                         Haz clic en "Confirmar Pago" para registrar tu solicitud. Un administrador verificará tu pago antes de generar los boletos.
                       </p>
                       <div className="flex items-center">
-                        <Input
-                          type="checkbox"
-                          id="payment-confirmation"
-                          className="w-4 h-4 mr-2"
-                          required
-                        />
+                        <Input type="checkbox" id="payment-confirmation" className="w-4 h-4 mr-2" required />
                         <Label htmlFor="payment-confirmation">
                           Confirmo que he realizado la transferencia por ${(event.price * quantity).toLocaleString()}
                         </Label>
@@ -457,29 +343,18 @@ const BuyTicket = () => {
                     </div>
                     
                     <div className="flex justify-between">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setStep(1)}
-                        className="border-magic hover:bg-magic-light"
-                      >
+                      <Button type="button" variant="outline" onClick={() => setStep(1)} className="border-magic hover:bg-magic-light">
                         Volver
                       </Button>
-                      <Button 
-                        type="submit" 
-                        className="magic-button" 
-                        disabled={isSubmitting}
-                      >
+                      <Button type="submit" className="magic-button" disabled={isSubmitting}>
                         {isSubmitting ? 'Procesando...' : 'Confirmar Pago'}
                       </Button>
                     </div>
                   </form>
                 </div>
-              </div>
-            )}
+              </div>}
 
-            {step === 3 && (
-              <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
+            {step === 3 && <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8 text-center">
                   <div className="flex justify-center mb-6">
                     <div className="w-16 h-16 bg-magic-light rounded-full flex items-center justify-center">
@@ -515,21 +390,15 @@ const BuyTicket = () => {
                   </div>
                   
                   <div className="flex justify-center gap-4">
-                    <Button
-                      onClick={() => navigate('/events')}
-                      className="magic-button"
-                    >
+                    <Button onClick={() => navigate('/events')} className="magic-button">
                       Explorar más eventos
                     </Button>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </div>
-    </Layout>
-  );
+    </Layout>;
 };
-
 export default BuyTicket;
