@@ -13,7 +13,8 @@ import {
   User, 
   Mail, 
   DollarSign, 
-  Ticket as TicketIcon 
+  Ticket as TicketIcon,
+  Fingerprint
 } from 'lucide-react';
 import { Ticket } from '@/utils/ticketUtils';
 
@@ -46,6 +47,20 @@ const TicketDetailDialog: React.FC<TicketDetailDialogProps> = ({
             <h3 className="text-xl font-bold text-magic-dark text-center mb-4">
               {selectedTicket.eventName}
             </h3>
+            
+            {/* Ticket ID display - prominently shown below event name */}
+            <div className="bg-magic-light/20 p-3 rounded-md border border-magic-light/30 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Fingerprint className="h-5 w-5 text-magic" />
+                  <span className="text-sm font-medium text-magic-dark">ID del Boleto:</span>
+                </div>
+                <span className="font-mono font-semibold text-magic">{selectedTicket.id}</span>
+              </div>
+              <p className="text-xs text-magic-dark/70 mt-1">
+                Utiliza este ID para validar el boleto en el panel de administración
+              </p>
+            </div>
             
             <div className="space-y-3">
               <div className="flex items-start gap-2">
