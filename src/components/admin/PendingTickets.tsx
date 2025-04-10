@@ -2,8 +2,15 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ThumbsUp, ThumbsDown, Eye } from 'lucide-react';
-import { PendingTicket, approvePendingTicket, rejectPendingTicket } from '@/utils/ticketUtils';
+import { Search, ThumbsUp, ThumbsDown, Eye, Trash2 } from 'lucide-react';
+import { 
+  PendingTicket, 
+  approvePendingTicket, 
+  rejectPendingTicket, 
+  deletePendingTicket,
+  getAllTickets, 
+  getPendingTickets 
+} from '@/utils/ticketUtils';
 import { useToast } from '@/hooks/use-toast';
 
 interface PendingTicketsProps {
@@ -22,6 +29,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
   const { toast } = useToast();
   const [pendingSearchTerm, setPendingSearchTerm] = useState('');
   const [isApproving, setIsApproving] = useState<{[key: string]: boolean}>({});
+  const [isDeleting, setIsDeleting] = useState<{[key: string]: boolean}>({});
 
   const handleApproveTicket = async (pendingTicket: PendingTicket) => {
     setIsApproving({...isApproving, [pendingTicket.id]: true});
@@ -70,6 +78,38 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       });
     } finally {
       setIsApproving({...isApproving, [pendingTicket.id]: false});
+    }
+  };
+
+  const handleDeletePendingTicket = (pendingTicket: PendingTicket) => {
+    setIsDeleting({...isDeleting, [pendingTicket.id]: true});
+    
+    try {
+      const success = deletePendingTicket(pendingTicket.id);
+      
+      if (success) {
+        const loadedPendingTickets = getPendingTickets();
+        setPendingTickets(loadedPendingTickets);
+        
+        toast({
+          title: "Solicitud eliminada",
+          description: `La solicitud ha sido eliminada correctamente`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo eliminar la solicitud",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al eliminar la solicitud",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting({...isDeleting, [pendingTicket.id]: false});
     }
   };
 
@@ -161,6 +201,16 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
                       {pendingTicket.status === 'rejected' && (
                         <span className="text-red-500 text-xs">Rechazado</span>
                       )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1 bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-700"
+                        onClick={() => handleDeletePendingTicket(pendingTicket)}
+                        disabled={isDeleting[pendingTicket.id]}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        Eliminar
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -176,8 +226,5 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
     </div>
   );
 };
-
-// We need to import these since they were missing
-import { getAllTickets, getPendingTickets } from '@/utils/ticketUtils';
 
 export default PendingTickets;

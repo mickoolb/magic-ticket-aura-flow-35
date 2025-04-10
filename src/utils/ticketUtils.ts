@@ -1,3 +1,4 @@
+
 import QRCode from 'qrcode';
 
 // Type definition for a ticket
@@ -30,6 +31,11 @@ export interface PendingTicket {
   requestDate: number;
   status: 'pending' | 'approved' | 'rejected';
 }
+
+// Configuración del sistema de boletos
+export const TICKET_CONFIG = {
+  MAX_TICKETS: 200
+};
 
 // Generate a unique ticket ID
 export const generateTicketId = (): string => {
@@ -263,4 +269,58 @@ export const rejectPendingTicket = async (pendingTicketId: string): Promise<void
   
   // En una aplicación real, aquí enviaríamos un correo de rechazo
   console.log(`Notificando rechazo de pago a ${pendingTickets[pendingTicketIndex].customerEmail}`);
+};
+
+// Nuevas funciones para borrar boletos y gestionar disponibilidad
+
+// Borrar un ticket específico
+export const deleteTicket = (ticketId: string): boolean => {
+  const storedTickets = getAllTickets();
+  const ticketIndex = storedTickets.findIndex(ticket => ticket.id === ticketId);
+  
+  if (ticketIndex === -1) {
+    return false;
+  }
+  
+  storedTickets.splice(ticketIndex, 1);
+  localStorage.setItem('magicticket_tickets', JSON.stringify(storedTickets));
+  return true;
+};
+
+// Borrar un pago pendiente
+export const deletePendingTicket = (pendingTicketId: string): boolean => {
+  const pendingTickets = getPendingTickets();
+  const pendingTicketIndex = pendingTickets.findIndex(ticket => ticket.id === pendingTicketId);
+  
+  if (pendingTicketIndex === -1) {
+    return false;
+  }
+  
+  pendingTickets.splice(pendingTicketIndex, 1);
+  localStorage.setItem('pendingTickets', JSON.stringify(pendingTickets));
+  return true;
+};
+
+// Obtener resumen de disponibilidad de boletos
+export const getTicketAvailability = (): {
+  totalCapacity: number;
+  sold: number;
+  pending: number;
+  available: number;
+} => {
+  const totalCapacity = TICKET_CONFIG.MAX_TICKETS;
+  const soldTickets = getAllTickets().length;
+  
+  // Calcular pendientes (solo los que están en estado "pending")
+  const pendingOrders = getPendingTickets().filter(t => t.status === 'pending');
+  const pendingQuantity = pendingOrders.reduce((sum, ticket) => sum + ticket.quantity, 0);
+  
+  const available = Math.max(0, totalCapacity - soldTickets - pendingQuantity);
+  
+  return {
+    totalCapacity,
+    sold: soldTickets,
+    pending: pendingQuantity,
+    available
+  };
 };

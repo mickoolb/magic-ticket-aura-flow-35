@@ -1,15 +1,20 @@
 
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { Ticket } from '@/utils/ticketUtils';
+import { Button } from '@/components/ui/button';
+import { Search, Trash2 } from 'lucide-react';
+import { Ticket, deleteTicket } from '@/utils/ticketUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface TicketsTableProps {
   tickets: Ticket[];
+  onDelete: () => void;
 }
 
-const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
+const TicketsTable: React.FC<TicketsTableProps> = ({ tickets, onDelete }) => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDeleting, setIsDeleting] = useState<{[key: string]: boolean}>({});
 
   const filteredTickets = tickets.filter(ticket => 
     ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -17,6 +22,36 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
     ticket.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ticket.eventName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDeleteTicket = (ticketId: string) => {
+    setIsDeleting({...isDeleting, [ticketId]: true});
+    
+    try {
+      const success = deleteTicket(ticketId);
+      
+      if (success) {
+        toast({
+          title: "Boleto eliminado",
+          description: "El boleto ha sido eliminado correctamente",
+        });
+        onDelete(); // Actualizar la lista de boletos
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo eliminar el boleto",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al eliminar el boleto",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting({...isDeleting, [ticketId]: false});
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-md border border-magic-light p-6">
@@ -44,6 +79,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                 <th className="px-4 py-3 text-left">Email</th>
                 <th className="px-4 py-3 text-left">Fecha de Compra</th>
                 <th className="px-4 py-3 text-left">Estado</th>
+                <th className="px-4 py-3 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-magic-light/50">
@@ -58,6 +94,18 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ tickets }) => {
                     <span className={`px-2 py-1 rounded-full text-xs ${ticket.used ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                       {ticket.used ? 'Utilizado' : 'No utilizado'}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
+                      onClick={() => handleDeleteTicket(ticket.id)}
+                      disabled={isDeleting[ticket.id]}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Eliminar
+                    </Button>
                   </td>
                 </tr>
               ))}

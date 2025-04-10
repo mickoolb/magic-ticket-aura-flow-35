@@ -21,6 +21,7 @@ import TicketsTable from '@/components/admin/TicketsTable';
 import SecurityAdmin from '@/components/admin/SecurityAdmin';
 import TicketDetailDialog from '@/components/admin/TicketDetailDialog';
 import CustomerTicketsDialog from '@/components/admin/CustomerTicketsDialog';
+import TicketAvailability from '@/components/admin/TicketAvailability';
 
 const AdminDashboard = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -39,11 +40,15 @@ const AdminDashboard = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showTicketDetailDialog, setShowTicketDetailDialog] = useState(false);
 
-  useEffect(() => {
+  const loadData = () => {
     const loadedTickets = getAllTickets();
     const loadedPendingTickets = getPendingTickets();
     setTickets(loadedTickets);
     setPendingTickets(loadedPendingTickets);
+  };
+
+  useEffect(() => {
+    loadData();
   }, [validationResult]);
 
   const viewGeneratedTickets = (customerEmail: string) => {
@@ -84,6 +89,9 @@ const AdminDashboard = () => {
             </Button>
           </div>
           
+          {/* Mostrar el componente de disponibilidad de boletos */}
+          <TicketAvailability />
+          
           <Tabs defaultValue="pending">
             <TabsList className="bg-white border border-magic-light">
               <TabsTrigger value="pending" className="data-[state=active]:bg-magic data-[state=active]:text-white">
@@ -121,7 +129,10 @@ const AdminDashboard = () => {
             </TabsContent>
             
             <TabsContent value="tickets" className="mt-6">
-              <TicketsTable tickets={tickets} />
+              <TicketsTable 
+                tickets={tickets} 
+                onDelete={loadData}
+              />
             </TabsContent>
             
             <TabsContent value="security" className="mt-6">
