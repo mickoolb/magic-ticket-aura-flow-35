@@ -48,6 +48,17 @@ const TicketDetailDialog: React.FC<TicketDetailDialogProps> = ({
               {selectedTicket.eventName}
             </h3>
             
+            {/* Customer name display - prominently shown below event name */}
+            <div className="bg-magic-light/10 p-3 rounded-md border border-magic-light/20 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-magic" />
+                  <span className="text-sm font-medium text-magic-dark">Comprado por:</span>
+                </div>
+                <span className="font-medium text-magic-dark">{selectedTicket.customerName}</span>
+              </div>
+            </div>
+            
             {/* Ticket ID display - prominently shown below event name */}
             <div className="bg-magic-light/20 p-3 rounded-md border border-magic-light/30 mb-4">
               <div className="flex items-center justify-between">
