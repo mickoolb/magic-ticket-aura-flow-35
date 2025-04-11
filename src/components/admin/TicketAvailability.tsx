@@ -25,7 +25,7 @@ const TicketAvailability: React.FC = () => {
         ></div>
         <div 
           className="absolute top-0 left-0 h-full bg-yellow-400" 
-          style={{ width: `${soldPercentage}%`, marginLeft: `${soldPercentage}%` }}
+          style={{ width: `${pendingPercentage}%`, left: `${soldPercentage}%` }}
         ></div>
       </div>
       

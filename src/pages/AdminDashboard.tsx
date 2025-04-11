@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogOut, Clock, QrCode, TicketIcon, ShieldCheck } from 'lucide-react';
+import { LogOut, Clock, QrCode, TicketIcon, ShieldCheck, FileImage } from 'lucide-react';
 import { 
   getAllTickets, 
   Ticket, 
@@ -14,7 +14,7 @@ import {
   getUserTickets
 } from '@/utils/ticketUtils';
 
-// Import our new components
+// Import our components
 import TicketValidator from '@/components/admin/TicketValidator';
 import PendingTickets from '@/components/admin/PendingTickets';
 import TicketsTable from '@/components/admin/TicketsTable';
@@ -22,6 +22,7 @@ import SecurityAdmin from '@/components/admin/SecurityAdmin';
 import TicketDetailDialog from '@/components/admin/TicketDetailDialog';
 import CustomerTicketsDialog from '@/components/admin/CustomerTicketsDialog';
 import TicketAvailability from '@/components/admin/TicketAvailability';
+import PaymentScreenshots from '@/components/admin/PaymentScreenshots';
 
 const AdminDashboard = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -98,6 +99,10 @@ const AdminDashboard = () => {
                 <Clock className="h-4 w-4 mr-2" />
                 Pagos Pendientes
               </TabsTrigger>
+              <TabsTrigger value="screenshots" className="data-[state=active]:bg-magic data-[state=active]:text-white">
+                <FileImage className="h-4 w-4 mr-2" />
+                Comprobantes
+              </TabsTrigger>
               <TabsTrigger value="validate" className="data-[state=active]:bg-magic data-[state=active]:text-white">
                 <QrCode className="h-4 w-4 mr-2" />
                 Validar Boletos
@@ -119,6 +124,10 @@ const AdminDashboard = () => {
                 setTickets={setTickets}
                 viewGeneratedTickets={viewGeneratedTickets}
               />
+            </TabsContent>
+            
+            <TabsContent value="screenshots" className="mt-6">
+              <PaymentScreenshots pendingTickets={pendingTickets} />
             </TabsContent>
             
             <TabsContent value="validate" className="mt-6">
