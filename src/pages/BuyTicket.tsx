@@ -2,19 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import { getEvent } from '@/data/events';
-import { createPendingTicket } from '@/utils/ticketUtils';
-import { useToast } from '@/components/ui/use-toast';
+import { createPendingTicket, getTicketAvailability } from '@/utils/ticketUtils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import TicketFAQ from '@/components/FAQ/TicketFAQ';
-import { Calendar, MapPin, CreditCard, Mail, User, Minus, Plus, CheckCircle2, CopyIcon, AlertCircle, Clock, X } from 'lucide-react';
+import { Calendar, MapPin, CreditCard, Mail, User, Minus, Plus, CheckCircle2, CopyIcon, AlertCircle, Clock, X, Upload, Info, Ban } from 'lucide-react';
+
 const BuyTicket = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const eventId = searchParams.get('event');
   const event = eventId ? getEvent(eventId) : null;
   const [quantity, setQuantity] = useState(1);
@@ -23,6 +22,9 @@ const BuyTicket = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1); // 1: Details, 2: Payment, 3: Confirmation
   const [paymentReference, setPaymentReference] = useState('');
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [availability, setAvailability] = useState(getTicketAvailability());
+
   useEffect(() => {
     if (!event && eventId) {
       toast({
@@ -32,18 +34,60 @@ const BuyTicket = () => {
       });
       navigate('/events');
     }
+    
+    setAvailability(getTicketAvailability());
   }, [event, eventId, navigate, toast]);
+
+  useEffect(() => {
+    if (step === 2 && customerName) {
+      const date = new Date();
+      const reference = `MT-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${customerName.substring(0, 3).toUpperCase()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+      setPaymentReference(reference);
+    }
+  }, [step, customerName]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPaymentProof(e.target.files[0]);
+    }
+  };
+
   const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!event) return;
+    
+    if (!paymentProof) {
+      toast({
+        title: "Comprobante requerido",
+        description: "Por favor, sube una captura de tu comprobante de pago.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
       setIsSubmitting(true);
-      const pendingTicketInfo = await createPendingTicket(event.id, event.title, customerName, customerEmail, event.date, event.location, event.price, quantity, paymentReference);
-      setStep(3);
-      toast({
-        title: "¡Solicitud enviada!",
-        description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`
-      });
+      const reader = new FileReader();
+      reader.readAsDataURL(paymentProof);
+      reader.onload = async () => {
+        const pendingTicketInfo = await createPendingTicket(
+          event.id, 
+          event.title, 
+          customerName, 
+          customerEmail, 
+          event.date, 
+          event.location, 
+          event.price, 
+          quantity, 
+          paymentReference
+        );
+        
+        setStep(3);
+        toast({
+          title: "¡Solicitud enviada!",
+          description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`
+        });
+      };
     } catch (error) {
       toast({
         title: "Error en la solicitud",
@@ -54,6 +98,7 @@ const BuyTicket = () => {
       setIsSubmitting(false);
     }
   };
+
   const handleCopyToClipboard = (text: string, message: string) => {
     navigator.clipboard.writeText(text).then(() => {
       toast({
@@ -69,13 +114,7 @@ const BuyTicket = () => {
       });
     });
   };
-  useEffect(() => {
-    if (step === 2 && customerName) {
-      const date = new Date();
-      const reference = `MT-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${customerName.substring(0, 3).toUpperCase()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-      setPaymentReference(reference);
-    }
-  }, [step, customerName]);
+
   if (!event) {
     return <Layout>
         <div className="container mx-auto px-4 md:px-6 py-12">
@@ -89,7 +128,9 @@ const BuyTicket = () => {
         </div>
       </Layout>;
   }
-  return <Layout>
+
+  return (
+    <Layout>
       <div className="bg-gradient-to-b from-magic-light/50 to-white py-12">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
@@ -118,7 +159,8 @@ const BuyTicket = () => {
               </div>
             </div>
 
-            {step === 1 && <>
+            {step === 1 && (
+              <>
                 <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                   <div className="p-6 md:p-8">
                     <h1 className="text-2xl font-bold text-magic-dark mb-6">Detalles del Boleto</h1>
@@ -150,6 +192,14 @@ const BuyTicket = () => {
                       
                       <div className="bg-magic-light/30 rounded-lg p-4">
                         <h3 className="font-semibold text-magic-dark mb-3">Resumen de compra</h3>
+                        
+                        <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-100">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-blue-700">Boletos disponibles:</span>
+                            <span className="font-semibold text-blue-700">{availability.available} de {TICKET_CONFIG.MAX_TICKETS}</span>
+                          </div>
+                        </div>
+                        
                         <div className="flex justify-between items-center mb-3">
                           <span>Precio por boleto:</span>
                           <span className="font-semibold">${event.price.toLocaleString()}</span>
@@ -161,7 +211,7 @@ const BuyTicket = () => {
                               <Minus className="h-3 w-3" />
                             </Button>
                             <span className="mx-3 font-semibold">{quantity}</span>
-                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQuantity(prev => Math.min(event.availableTickets, prev + 1))} disabled={quantity >= event.availableTickets}>
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQuantity(prev => Math.min(availability.available, prev + 1))} disabled={quantity >= availability.available}>
                               <Plus className="h-3 w-3" />
                             </Button>
                           </div>
@@ -173,12 +223,10 @@ const BuyTicket = () => {
                       </div>
                     </div>
                     
-                    
-                    
                     <form onSubmit={e => {
-                  e.preventDefault();
-                  setStep(2);
-                }}>
+                      e.preventDefault();
+                      setStep(2);
+                    }}>
                       <div className="space-y-4 mb-6">
                         <div>
                           <Label htmlFor="name">Nombre Completo</Label>
@@ -201,9 +249,19 @@ const BuyTicket = () => {
                           <AlertCircle className="h-5 w-5 mr-2 text-magic" />
                           Puntos Importantes
                         </h3>
-                        <div className="flex items-start mt-2">
-                          <X className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
-                          <p className="text-magic-dark/80">No hay cambio o devolución de entrada</p>
+                        <div className="space-y-2">
+                          <div className="flex items-start mt-2">
+                            <X className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                            <p className="text-magic-dark/80">No hay cambio o devolución de entrada</p>
+                          </div>
+                          <div className="flex items-start">
+                            <Clock className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                            <p className="text-magic-dark/80">Se recomienda llegar 30 minutos antes del evento</p>
+                          </div>
+                          <div className="flex items-start">
+                            <Ban className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                            <p className="text-magic-dark/80">Se prohíbe ingresar con alcohol y bebidas al evento</p>
+                          </div>
                         </div>
                       </div>
                       
@@ -217,9 +275,11 @@ const BuyTicket = () => {
                 </div>
                 
                 <TicketFAQ />
-              </>}
+              </>
+            )}
 
-            {step === 2 && <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
+            {step === 2 && (
+              <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8">
                   <h1 className="text-2xl font-bold text-magic-dark mb-6">Información de Pago por Transferencia</h1>
                   
@@ -328,6 +388,36 @@ const BuyTicket = () => {
                     </div>
                   </div>
                   
+                  <div className="mb-6">
+                    <h3 className="font-semibold text-magic-dark mb-3">Comprobante de Pago</h3>
+                    <div className="border-2 border-dashed border-magic-light/50 rounded-lg p-6 text-center">
+                      <Upload className="h-10 w-10 mx-auto mb-3 text-magic/60" />
+                      <p className="text-magic-dark/70 mb-3">
+                        Sube una captura de pantalla de tu comprobante de pago
+                      </p>
+                      <input 
+                        type="file" 
+                        id="payment-proof" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleFileChange}
+                        required 
+                      />
+                      <Button 
+                        variant="outline" 
+                        className="border-magic text-magic hover:bg-magic-light/30"
+                        onClick={() => document.getElementById('payment-proof')?.click()}
+                      >
+                        Seleccionar Archivo
+                      </Button>
+                      {paymentProof && (
+                        <div className="mt-3 p-2 bg-magic-light/20 rounded text-magic-dark">
+                          <p>Archivo seleccionado: {paymentProof.name}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
                   <form onSubmit={handlePurchase}>
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                       <h3 className="font-semibold text-magic-dark mb-2">Una vez realizada tu transferencia:</h3>
@@ -346,15 +436,21 @@ const BuyTicket = () => {
                       <Button type="button" variant="outline" onClick={() => setStep(1)} className="border-magic hover:bg-magic-light">
                         Volver
                       </Button>
-                      <Button type="submit" className="magic-button" disabled={isSubmitting}>
+                      <Button 
+                        type="submit" 
+                        className="magic-button" 
+                        disabled={isSubmitting || !paymentProof}
+                      >
                         {isSubmitting ? 'Procesando...' : 'Confirmar Pago'}
                       </Button>
                     </div>
                   </form>
                 </div>
-              </div>}
+              </div>
+            )}
 
-            {step === 3 && <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
+            {step === 3 && (
+              <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8 text-center">
                   <div className="flex justify-center mb-6">
                     <div className="w-16 h-16 bg-magic-light rounded-full flex items-center justify-center">
@@ -395,10 +491,13 @@ const BuyTicket = () => {
                     </Button>
                   </div>
                 </div>
-              </div>}
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </Layout>;
+    </Layout>
+  );
 };
+
 export default BuyTicket;

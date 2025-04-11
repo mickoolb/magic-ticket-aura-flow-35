@@ -17,17 +17,16 @@ const TicketAvailability: React.FC = () => {
         <span className="font-medium">{TICKET_CONFIG.MAX_TICKETS} boletos</span>
       </div>
       
-      <div className="flex mb-6">
-        <div className="w-full h-8 bg-gray-100 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-green-500 float-left" 
-            style={{ width: `${soldPercentage}%` }}
-          ></div>
-          <div 
-            className="h-full bg-yellow-400 float-left" 
-            style={{ width: `${pendingPercentage}%` }}
-          ></div>
-        </div>
+      <div className="relative h-8 mb-6">
+        <Progress value={soldPercentage + pendingPercentage} className="h-8 bg-gray-100 rounded-full" />
+        <div 
+          className="absolute top-0 left-0 h-full bg-green-500 rounded-l-full" 
+          style={{ width: `${soldPercentage}%` }}
+        ></div>
+        <div 
+          className="absolute top-0 left-0 h-full bg-yellow-400" 
+          style={{ width: `${soldPercentage}%`, marginLeft: `${soldPercentage}%` }}
+        ></div>
       </div>
       
       <div className="grid grid-cols-3 gap-4">

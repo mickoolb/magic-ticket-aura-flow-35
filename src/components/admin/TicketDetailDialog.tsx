@@ -14,7 +14,10 @@ import {
   Mail, 
   DollarSign, 
   Ticket as TicketIcon,
-  Fingerprint
+  Fingerprint,
+  Clock,
+  Ban,
+  AlertCircle
 } from 'lucide-react';
 import { Ticket } from '@/utils/ticketUtils';
 
@@ -71,6 +74,24 @@ const TicketDetailDialog: React.FC<TicketDetailDialogProps> = ({
               <p className="text-xs text-magic-dark/70 mt-1">
                 Utiliza este ID para validar el boleto en el panel de administración
               </p>
+            </div>
+            
+            {/* Important information section */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+              <h4 className="font-medium text-yellow-800 flex items-center mb-2">
+                <AlertCircle className="h-4 w-4 mr-1.5" />
+                Información Importante
+              </h4>
+              <div className="space-y-2 text-sm text-yellow-800">
+                <div className="flex items-start">
+                  <Clock className="h-3.5 w-3.5 mr-1.5 mt-0.5 flex-shrink-0" />
+                  <p>Se recomienda llegar 30 minutos antes del evento</p>
+                </div>
+                <div className="flex items-start">
+                  <Ban className="h-3.5 w-3.5 mr-1.5 mt-0.5 flex-shrink-0" />
+                  <p>Se prohíbe ingresar alcohol y bebidas al evento</p>
+                </div>
+              </div>
             </div>
             
             <div className="space-y-3">
