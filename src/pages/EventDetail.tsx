@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import { getEvent } from '@/data/events';
 import { Button } from '@/components/ui/button';
+import { getTicketAvailability, TICKET_CONFIG } from '@/utils/ticketUtils';
 import { 
   Calendar, 
   Clock, 
@@ -19,6 +20,12 @@ const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const event = getEvent(id || '');
+  const [availability, setAvailability] = useState(getTicketAvailability());
+  
+  useEffect(() => {
+    // Update availability data when component mounts
+    setAvailability(getTicketAvailability());
+  }, []);
 
   if (!event) {
     return (
@@ -143,13 +150,13 @@ const EventDetail = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-magic-dark">Disponibilidad:</span>
                       <span className="text-magic-dark">
-                        {event.availableTickets} de {event.capacity} disponibles
+                        {availability.available} de {TICKET_CONFIG.MAX_TICKETS} disponibles
                       </span>
                     </div>
                     <div className="w-full bg-magic-light/50 rounded-full h-2.5">
                       <div 
                         className="bg-magic h-2.5 rounded-full" 
-                        style={{ width: `${(event.availableTickets / event.capacity) * 100}%` }}
+                        style={{ width: `${(availability.available / TICKET_CONFIG.MAX_TICKETS) * 100}%` }}
                       ></div>
                     </div>
                   </div>

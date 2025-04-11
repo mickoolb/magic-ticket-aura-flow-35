@@ -28,6 +28,7 @@ export interface PendingTicket {
   price: number;
   quantity: number;
   paymentReference: string;
+  paymentProof?: string; // Add this optional field
   requestDate: number;
   status: 'pending' | 'approved' | 'rejected';
 }

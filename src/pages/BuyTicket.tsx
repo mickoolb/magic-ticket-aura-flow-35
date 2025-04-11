@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
@@ -257,7 +256,7 @@ const BuyTicket = () => {
                           </div>
                           <div className="flex items-start">
                             <Clock className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
-                            <p className="text-magic-dark/80">Se recomienda llegar 30 minutos antes del evento</p>
+                            <p className="text-magic-dark/80">Se recomienda llegar 15 minutos antes del evento</p>
                           </div>
                           <div className="flex items-start">
                             <Ban className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
@@ -406,7 +405,7 @@ const BuyTicket = () => {
                       />
                       <Button 
                         variant="outline" 
-                        className="border-magic text-magic hover:bg-magic-light/30"
+                        className="border-magic text-magic hover:bg-magic-light"
                         onClick={() => document.getElementById('payment-proof')?.click()}
                       >
                         Seleccionar Archivo

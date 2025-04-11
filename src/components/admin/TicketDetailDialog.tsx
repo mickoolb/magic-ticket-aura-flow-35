@@ -85,7 +85,7 @@ const TicketDetailDialog: React.FC<TicketDetailDialogProps> = ({
               <div className="space-y-2 text-sm text-yellow-800">
                 <div className="flex items-start">
                   <Clock className="h-3.5 w-3.5 mr-1.5 mt-0.5 flex-shrink-0" />
-                  <p>Se recomienda llegar 30 minutos antes del evento</p>
+                  <p>Se recomienda llegar 15 minutos antes del evento</p>
                 </div>
                 <div className="flex items-start">
                   <Ban className="h-3.5 w-3.5 mr-1.5 mt-0.5 flex-shrink-0" />
