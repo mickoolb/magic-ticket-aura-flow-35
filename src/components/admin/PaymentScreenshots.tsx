@@ -2,31 +2,72 @@
 import React, { useState } from 'react';
 import { PendingTicket } from '@/utils/ticketUtils';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Eye, FileImage, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, FileImage, AlertCircle, CheckCircle, XCircle, Trash2, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PaymentScreenshotsProps {
   pendingTickets: PendingTicket[];
+  onDelete?: (ticketId: string) => void;
 }
 
-const PaymentScreenshots: React.FC<PaymentScreenshotsProps> = ({ pendingTickets }) => {
+const PaymentScreenshots: React.FC<PaymentScreenshotsProps> = ({ pendingTickets, onDelete }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   // Filter tickets that have payment proof
   const ticketsWithProof = pendingTickets.filter(ticket => ticket.paymentProof);
 
-  const viewImage = (imageData: string) => {
+  const viewImage = (imageData: string, ticketId: string) => {
     setSelectedImage(imageData);
+    setSelectedTicketId(ticketId);
     setOpenDialog(true);
+  };
+
+  const handleDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedTicketId && onDelete) {
+      onDelete(selectedTicketId);
+      setOpenDialog(false);
+      setOpenDeleteDialog(false);
+      toast.success("Comprobante eliminado correctamente");
+    }
   };
 
   const handleImageError = () => {
     toast.error("Error al cargar la imagen. El formato podría no ser compatible.", {
       description: "Intente con otro formato de imagen como JPG o PNG."
     });
+  };
+
+  const downloadImage = () => {
+    if (!selectedImage) return;
+    
+    // Creating a temporary link to download the image
+    const link = document.createElement('a');
+    link.href = selectedImage;
+    link.download = `comprobante-pago-${selectedTicketId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("Imagen descargada correctamente");
   };
 
   return (
@@ -79,7 +120,7 @@ const PaymentScreenshots: React.FC<PaymentScreenshotsProps> = ({ pendingTickets 
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => viewImage(ticket.paymentProof!)}
+                    onClick={() => viewImage(ticket.paymentProof!, ticket.id)}
                     className="flex items-center gap-1"
                   >
                     <Eye className="h-3.5 w-3.5" />
@@ -115,15 +156,23 @@ const PaymentScreenshots: React.FC<PaymentScreenshotsProps> = ({ pendingTickets 
                   className="max-h-[70vh] object-contain mx-auto border rounded-md"
                   onError={handleImageError}
                 />
-                <div className="mt-4 flex justify-center">
-                  <a 
-                    href={selectedImage} 
-                    download="comprobante-pago.jpg"
-                    className="text-magic hover:text-magic-dark underline text-sm flex items-center gap-1"
+                <div className="mt-4 flex justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={downloadImage}
+                    className="flex items-center gap-2"
                   >
-                    <FileImage className="h-4 w-4" />
+                    <Download className="h-4 w-4" />
                     Descargar imagen
-                  </a>
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteClick}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Eliminar comprobante
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -135,6 +184,23 @@ const PaymentScreenshots: React.FC<PaymentScreenshotsProps> = ({ pendingTickets 
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente el comprobante de pago y no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

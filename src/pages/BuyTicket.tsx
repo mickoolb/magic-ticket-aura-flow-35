@@ -48,7 +48,23 @@ const BuyTicket = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setPaymentProof(e.target.files[0]);
+      const file = e.target.files[0];
+      
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Archivo demasiado grande",
+          description: "El tamaño máximo permitido es 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setPaymentProof(file);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -67,9 +83,12 @@ const BuyTicket = () => {
     
     try {
       setIsSubmitting(true);
+      
       const reader = new FileReader();
       reader.readAsDataURL(paymentProof);
       reader.onload = async () => {
+        const base64Image = reader.result as string;
+        
         const pendingTicketInfo = await createPendingTicket(
           event.id, 
           event.title, 
@@ -79,7 +98,8 @@ const BuyTicket = () => {
           event.location, 
           event.price, 
           quantity, 
-          paymentReference
+          paymentReference,
+          base64Image
         );
         
         setStep(3);
@@ -88,13 +108,21 @@ const BuyTicket = () => {
           description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`
         });
       };
+      
+      reader.onerror = () => {
+        toast({
+          title: "Error al procesar la imagen",
+          description: "No se pudo procesar el archivo. Intenta con otro formato.",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+      };
     } catch (error) {
       toast({
         title: "Error en la solicitud",
         description: "Ocurrió un error al procesar tu solicitud. Inténtalo nuevamente.",
         variant: "destructive"
       });
-    } finally {
       setIsSubmitting(false);
     }
   };

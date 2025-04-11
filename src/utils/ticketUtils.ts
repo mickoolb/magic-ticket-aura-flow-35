@@ -1,4 +1,3 @@
-
 import QRCode from 'qrcode';
 
 // Type definition for a ticket
@@ -324,4 +323,17 @@ export const getTicketAvailability = (): {
     pending: pendingQuantity,
     available
   };
+};
+
+export const deletePendingTicketPaymentProof = (ticketId: string): void => {
+  const pendingTickets = getPendingTickets();
+  const ticketIndex = pendingTickets.findIndex(ticket => ticket.id === ticketId);
+  
+  if (ticketIndex !== -1) {
+    // Remove the payment proof but keep the ticket
+    pendingTickets[ticketIndex].paymentProof = null;
+    localStorage.setItem('pendingTickets', JSON.stringify(pendingTickets));
+  } else {
+    throw new Error('Ticket not found');
+  }
 };

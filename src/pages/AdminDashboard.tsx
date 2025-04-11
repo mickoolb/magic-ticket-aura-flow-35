@@ -11,8 +11,10 @@ import {
   Ticket, 
   getPendingTickets,
   PendingTicket,
-  getUserTickets
+  getUserTickets,
+  deletePendingTicketPaymentProof
 } from '@/utils/ticketUtils';
+import { toast } from 'sonner';
 
 // Import our components
 import TicketValidator from '@/components/admin/TicketValidator';
@@ -63,6 +65,16 @@ const AdminDashboard = () => {
     setSelectedTicket(ticket);
     setShowTicketDetailDialog(true);
     console.log(`Ver boleto: ${ticket.id}`);
+  };
+
+  const handleDeletePaymentProof = (ticketId: string) => {
+    try {
+      deletePendingTicketPaymentProof(ticketId);
+      loadData(); // Reload data after deletion
+      toast.success("Comprobante eliminado correctamente");
+    } catch (error) {
+      toast.error("Error al eliminar el comprobante");
+    }
   };
 
   if (!isAuthenticated) {
@@ -127,7 +139,10 @@ const AdminDashboard = () => {
             </TabsContent>
             
             <TabsContent value="screenshots" className="mt-6">
-              <PaymentScreenshots pendingTickets={pendingTickets} />
+              <PaymentScreenshots 
+                pendingTickets={pendingTickets} 
+                onDelete={handleDeletePaymentProof} 
+              />
             </TabsContent>
             
             <TabsContent value="validate" className="mt-6">
