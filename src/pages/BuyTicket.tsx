@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import { getEvent } from '@/data/events';
-import { createPendingTicket, getTicketAvailability } from '@/utils/ticketUtils';
+import { createPendingTicket, getTicketAvailability, TICKET_CONFIG } from '@/utils/ticketUtils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
