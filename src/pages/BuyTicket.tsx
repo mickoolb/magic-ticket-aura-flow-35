@@ -1,26 +1,24 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import { getEvent } from '@/data/events';
 import { createPendingTicket, getTicketAvailability, TICKET_CONFIG } from '@/utils/ticketUtils';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import TicketFAQ from '@/components/FAQ/TicketFAQ';
-import { Calendar, MapPin, CreditCard, Mail, User, Phone, Minus, Plus, CheckCircle2, CopyIcon, AlertCircle, Clock, X, Upload, Info, Ban, FileText, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, CreditCard, Mail, User, Minus, Plus, CheckCircle2, CopyIcon, AlertCircle, Clock, X, Upload, Info, Ban } from 'lucide-react';
 
 const BuyTicket = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const eventId = searchParams.get('event');
   const event = eventId ? getEvent(eventId) : null;
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [customerDocument, setCustomerDocument] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1); // 1: Details, 2: Payment, 3: Confirmation
   const [paymentReference, setPaymentReference] = useState('');
@@ -29,12 +27,16 @@ const BuyTicket = () => {
 
   useEffect(() => {
     if (!event && eventId) {
-      toast.error("El evento solicitado no está disponible.");
+      toast({
+        title: "Evento no encontrado",
+        description: "El evento solicitado no está disponible.",
+        variant: "destructive"
+      });
       navigate('/events');
     }
     
     setAvailability(getTicketAvailability());
-  }, [event, eventId, navigate]);
+  }, [event, eventId, navigate, toast]);
 
   useEffect(() => {
     if (step === 2 && customerName) {
@@ -49,11 +51,20 @@ const BuyTicket = () => {
       const file = e.target.files[0];
       
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("El tamaño máximo permitido es 5MB");
+        toast({
+          title: "Archivo demasiado grande",
+          description: "El tamaño máximo permitido es 5MB",
+          variant: "destructive"
+        });
         return;
       }
       
       setPaymentProof(file);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -62,7 +73,11 @@ const BuyTicket = () => {
     if (!event) return;
     
     if (!paymentProof) {
-      toast.error("Por favor, sube una captura de tu comprobante de pago.");
+      toast({
+        title: "Comprobante requerido",
+        description: "Por favor, sube una captura de tu comprobante de pago.",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -74,7 +89,7 @@ const BuyTicket = () => {
       reader.onload = async () => {
         const base64Image = reader.result as string;
         
-        await createPendingTicket(
+        const pendingTicketInfo = await createPendingTicket(
           event.id, 
           event.title, 
           customerName, 
@@ -88,25 +103,43 @@ const BuyTicket = () => {
         );
         
         setStep(3);
-        toast.success("¡Solicitud enviada! Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).");
+        toast({
+          title: "¡Solicitud enviada!",
+          description: `Tu solicitud de compra ha sido registrada. Recibirás tus boletos por correo una vez que se verifique el pago (1-2 horas).`
+        });
       };
       
       reader.onerror = () => {
-        toast.error("No se pudo procesar el archivo. Intenta con otro formato.");
+        toast({
+          title: "Error al procesar la imagen",
+          description: "No se pudo procesar el archivo. Intenta con otro formato.",
+          variant: "destructive"
+        });
         setIsSubmitting(false);
       };
     } catch (error) {
-      toast.error("Ocurrió un error al procesar tu solicitud. Inténtalo nuevamente.");
+      toast({
+        title: "Error en la solicitud",
+        description: "Ocurrió un error al procesar tu solicitud. Inténtalo nuevamente.",
+        variant: "destructive"
+      });
       setIsSubmitting(false);
     }
   };
 
   const handleCopyToClipboard = (text: string, message: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      toast.success(message);
+      toast({
+        title: "Copiado",
+        description: message
+      });
     }, err => {
       console.error('Error al copiar: ', err);
-      toast.error("No se pudo copiar el texto");
+      toast({
+        title: "Error",
+        description: "No se pudo copiar el texto",
+        variant: "destructive"
+      });
     });
   };
 
@@ -129,190 +162,160 @@ const BuyTicket = () => {
       <div className="bg-gradient-to-b from-magic-light/50 to-white py-12">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
-            {step === 1 && (
-              <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
-                <div className="flex justify-between items-center p-4 border-b border-magic-light">
-                  <h1 className="text-xl font-bold text-magic-dark">Comprar Entrada Mágica</h1>
-                  <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                
-                <div className="p-6">
-                  <p className="text-magic-dark/70 mb-6">Completa tus datos personales para adquirir tu entrada.</p>
-                  
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center">
-                        1
-                      </div>
-                      <div className="font-medium">Datos</div>
-                    </div>
-                    <div className="flex-grow mx-4 h-1 bg-gray-200">
-                      <div className="h-full bg-purple-500 w-0"></div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
-                        2
-                      </div>
-                      <div className="text-gray-500">Pago</div>
-                    </div>
-                    <div className="flex-grow mx-4 h-1 bg-gray-200">
-                      <div className="h-full bg-purple-500 w-0"></div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
-                        3
-                      </div>
-                      <div className="text-gray-500">Confirmación</div>
-                    </div>
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                <div className={`flex flex-col items-center ${step >= 1 ? 'text-magic' : 'text-magic-dark/40'}`}>
+                  <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${step >= 1 ? 'border-magic bg-magic text-white' : 'border-magic-dark/30'}`}>
+                    1
                   </div>
-                  
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!customerName || !customerEmail || !customerPhone || !customerDocument) {
-                      toast.error("Por favor completa todos los campos obligatorios");
-                      return;
-                    }
-                    setStep(2);
-                  }}>
-                    <div className="space-y-4 mb-8">
-                      <div>
-                        <Label htmlFor="name" className="flex items-center">
-                          Nombre completo <span className="text-red-500 ml-1">*</span>
-                        </Label>
-                        <Input 
-                          id="name" 
-                          placeholder="-----" 
-                          className="border-purple-200 focus:border-purple-500" 
-                          value={customerName} 
-                          onChange={e => setCustomerName(e.target.value)} 
-                          required 
-                        />
+                  <span className="mt-2 text-sm">Detalles</span>
+                </div>
+                <div className={`flex-1 h-1 mx-2 ${step >= 2 ? 'bg-magic' : 'bg-magic-dark/20'}`}></div>
+                <div className={`flex flex-col items-center ${step >= 2 ? 'text-magic' : 'text-magic-dark/40'}`}>
+                  <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${step >= 2 ? 'border-magic bg-magic text-white' : 'border-magic-dark/30'}`}>
+                    2
+                  </div>
+                  <span className="mt-2 text-sm">Pago</span>
+                </div>
+                <div className={`flex-1 h-1 mx-2 ${step >= 3 ? 'bg-magic' : 'bg-magic-dark/20'}`}></div>
+                <div className={`flex flex-col items-center ${step >= 3 ? 'text-magic' : 'text-magic-dark/40'}`}>
+                  <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${step >= 3 ? 'border-magic bg-magic text-white' : 'border-magic-dark/30'}`}>
+                    3
+                  </div>
+                  <span className="mt-2 text-sm">Confirmación</span>
+                </div>
+              </div>
+            </div>
+
+            {step === 1 && (
+              <>
+                <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
+                  <div className="p-6 md:p-8">
+                    <h1 className="text-2xl font-bold text-magic-dark mb-6">Detalles del Boleto</h1>
+                    
+                    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center text-magic-dark/80">
+                          <Calendar className="h-5 w-5 mr-3 text-magic" />
+                          <div>
+                            <div className="font-medium">Evento</div>
+                            <div className="font-semibold text-magic-dark">{event.title}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-magic-dark/80">
+                          <Calendar className="h-5 w-5 mr-3 text-magic" />
+                          <div>
+                            <div className="font-medium">Fecha</div>
+                            <div>{event.date}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-magic-dark/80">
+                          <MapPin className="h-5 w-5 mr-3 text-magic" />
+                          <div>
+                            <div className="font-medium">Ubicación</div>
+                            <div>{event.location}</div>
+                          </div>
+                        </div>
                       </div>
                       
-                      <div>
-                        <Label htmlFor="email" className="flex items-center">
-                          Email <span className="text-red-500 ml-1">*</span>
-                        </Label>
-                        <Input 
-                          id="email" 
-                          type="email" 
-                          placeholder="Tu correo electrónico" 
-                          className="border-purple-200 focus:border-purple-500" 
-                          value={customerEmail} 
-                          onChange={e => setCustomerEmail(e.target.value)} 
-                          required 
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="phone" className="flex items-center">
-                          Teléfono <span className="text-red-500 ml-1">*</span>
-                        </Label>
-                        <Input 
-                          id="phone" 
-                          type="tel" 
-                          placeholder="Tu número de teléfono" 
-                          className="border-purple-200 focus:border-purple-500" 
-                          value={customerPhone} 
-                          onChange={e => setCustomerPhone(e.target.value)} 
-                          required 
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="document" className="flex items-center">
-                          RUT/DNI <span className="text-red-500 ml-1">*</span>
-                        </Label>
-                        <Input 
-                          id="document" 
-                          placeholder="Tu documento de identidad" 
-                          className="border-purple-200 focus:border-purple-500" 
-                          value={customerDocument} 
-                          onChange={e => setCustomerDocument(e.target.value)} 
-                          required 
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="quantity">Cantidad de entradas</Label>
-                        <div className="flex items-center mt-1">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-8 w-8 rounded-full" 
-                            onClick={() => setQuantity(prev => Math.max(1, prev - 1))} 
-                            disabled={quantity <= 1}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="mx-3 font-semibold">{quantity}</span>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-8 w-8 rounded-full" 
-                            onClick={() => setQuantity(prev => Math.min(availability.available, prev + 1))} 
-                            disabled={quantity >= availability.available}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                          <span className="ml-3 text-sm text-gray-500">{availability.available} disponibles</span>
+                      <div className="bg-magic-light/30 rounded-lg p-4">
+                        <h3 className="font-semibold text-magic-dark mb-3">Resumen de compra</h3>
+                        
+                        <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-100">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-blue-700">Boletos disponibles:</span>
+                            <span className="font-semibold text-blue-700">{availability.available} de {TICKET_CONFIG.MAX_TICKETS}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center mb-3">
+                          <span>Precio por boleto:</span>
+                          <span className="font-semibold">${event.price.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-4">
+                          <span>Cantidad:</span>
+                          <div className="flex items-center">
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQuantity(prev => Math.max(1, prev - 1))} disabled={quantity <= 1}>
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="mx-3 font-semibold">{quantity}</span>
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQuantity(prev => Math.min(availability.available, prev + 1))} disabled={quantity >= availability.available}>
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="border-t border-magic-light/50 pt-3 flex justify-between items-center">
+                          <span className="font-semibold">Total:</span>
+                          <span className="text-xl font-bold text-magic">${(event.price * quantity).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-purple-500 hover:bg-purple-600 text-white"
-                    >
-                      Siguiente <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </form>
+                    <form onSubmit={e => {
+                      e.preventDefault();
+                      setStep(2);
+                    }}>
+                      <div className="space-y-4 mb-6">
+                        <div>
+                          <Label htmlFor="name">Nombre Completo</Label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
+                            <Input id="name" type="text" placeholder="Tu nombre completo" className="pl-10 border-magic-light" value={customerName} onChange={e => setCustomerName(e.target.value)} required />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Correo Electrónico</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-magic-dark/50 h-4 w-4" />
+                            <Input id="email" type="email" placeholder="Para recibir tu boleto" className="pl-10 border-magic-light" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} required />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-magic-light/20 border border-magic-light/40 rounded-lg p-4 mb-6">
+                        <h3 className="font-semibold text-magic-dark mb-2 flex items-center">
+                          <AlertCircle className="h-5 w-5 mr-2 text-magic" />
+                          Puntos Importantes
+                        </h3>
+                        <div className="space-y-2">
+                          <div className="flex items-start mt-2">
+                            <X className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                            <p className="text-magic-dark/80">No hay cambio o devolución de entrada</p>
+                          </div>
+                          <div className="flex items-start">
+                            <Clock className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                            <p className="text-magic-dark/80">Se recomienda llegar 15 minutos antes del evento</p>
+                          </div>
+                          <div className="flex items-start">
+                            <Ban className="h-4 w-4 text-magic/70 mr-2 mt-0.5 flex-shrink-0" />
+                            <p className="text-magic-dark/80">Se prohíbe ingresar con alcohol y bebidas al evento</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Button type="submit" className="magic-button">
+                          Continuar al Pago
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
-              </div>
+                
+                <TicketFAQ />
+              </>
             )}
 
             {step === 2 && (
               <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
-                <div className="flex justify-between items-center p-4 border-b border-magic-light">
-                  <h1 className="text-xl font-bold text-magic-dark">Comprar Entrada Mágica</h1>
-                  <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
-                        <CheckCircle2 className="h-4 w-4" />
-                      </div>
-                      <div className="font-medium">Datos</div>
-                    </div>
-                    <div className="flex-grow mx-4 h-1 bg-green-500"></div>
-                    <div className="flex space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center">
-                        2
-                      </div>
-                      <div className="font-medium">Pago</div>
-                    </div>
-                    <div className="flex-grow mx-4 h-1 bg-gray-200"></div>
-                    <div className="flex space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
-                        3
-                      </div>
-                      <div className="text-gray-500">Confirmación</div>
-                    </div>
-                  </div>
+                <div className="p-6 md:p-8">
+                  <h1 className="text-2xl font-bold text-magic-dark mb-6">Información de Pago por Transferencia</h1>
                   
                   <div className="mb-6 space-y-4">
-                    <div className="p-4 bg-purple-50 rounded-lg">
+                    <div className="p-4 bg-magic-light/30 rounded-lg">
                       <h3 className="font-semibold text-magic-dark mb-2">Resumen de la orden</h3>
                       <div className="flex justify-between items-center">
-                        <span>{quantity} x Entrada {event.title}</span>
+                        <span>{quantity} x {event.title}</span>
                         <span className="font-semibold">${(event.price * quantity).toLocaleString()}</span>
                       </div>
                     </div>
@@ -367,6 +370,18 @@ const BuyTicket = () => {
                       
                       <div className="bg-white rounded-md p-3 border border-magic-light">
                         <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">CLABE:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">012345678901234567</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("012345678901234567", "CLABE copiada")}>
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
                           <span className="text-magic-dark/70">Monto:</span>
                           <div className="flex items-center">
                             <span className="font-semibold text-magic">${(event.price * quantity).toLocaleString()}</span>
@@ -389,12 +404,22 @@ const BuyTicket = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    <div className="mt-5 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800">
+                      <p className="text-sm font-medium flex items-start">
+                        <Clock className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>
+                          <span className="font-bold">Importante: </span> 
+                          Incluye la referencia exacta en tu transferencia. La verificación del pago toma de 1 a 2 horas y recibirás tus boletos por correo una vez aprobada.
+                        </span>
+                      </p>
+                    </div>
                   </div>
                   
                   <div className="mb-6">
                     <h3 className="font-semibold text-magic-dark mb-3">Comprobante de Pago</h3>
-                    <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 text-center">
-                      <Upload className="h-10 w-10 mx-auto mb-3 text-purple-400" />
+                    <div className="border-2 border-dashed border-magic-light/50 rounded-lg p-6 text-center">
+                      <Upload className="h-10 w-10 mx-auto mb-3 text-magic/60" />
                       <p className="text-magic-dark/70 mb-3">
                         Sube una captura de pantalla de tu comprobante de pago
                       </p>
@@ -408,30 +433,40 @@ const BuyTicket = () => {
                       />
                       <Button 
                         variant="outline" 
-                        className="border-purple-300 text-purple-500 hover:bg-purple-50"
+                        className="border-magic text-magic hover:bg-magic-light"
                         onClick={() => document.getElementById('payment-proof')?.click()}
                       >
                         Seleccionar Archivo
                       </Button>
                       {paymentProof && (
-                        <div className="mt-3 p-2 bg-purple-50 rounded text-purple-700">
-                          <p className="flex items-center">
-                            <FileText className="h-4 w-4 mr-2" />
-                            {paymentProof.name}
-                          </p>
+                        <div className="mt-3 p-2 bg-magic-light/20 rounded text-magic-dark">
+                          <p>Archivo seleccionado: {paymentProof.name}</p>
                         </div>
                       )}
                     </div>
                   </div>
                   
                   <form onSubmit={handlePurchase}>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                      <h3 className="font-semibold text-magic-dark mb-2">Una vez realizada tu transferencia:</h3>
+                      <p className="text-magic-dark/80 mb-4">
+                        Haz clic en "Confirmar Pago" para registrar tu solicitud. Un administrador verificará tu pago antes de generar los boletos.
+                      </p>
+                      <div className="flex items-center">
+                        <Input type="checkbox" id="payment-confirmation" className="w-4 h-4 mr-2" required />
+                        <Label htmlFor="payment-confirmation">
+                          Confirmo que he realizado la transferencia por ${(event.price * quantity).toLocaleString()}
+                        </Label>
+                      </div>
+                    </div>
+                    
                     <div className="flex justify-between">
-                      <Button type="button" variant="outline" onClick={() => setStep(1)} className="border-purple-300 text-purple-500 hover:bg-purple-50">
+                      <Button type="button" variant="outline" onClick={() => setStep(1)} className="border-magic hover:bg-magic-light">
                         Volver
                       </Button>
                       <Button 
                         type="submit" 
-                        className="bg-purple-500 hover:bg-purple-600 text-white" 
+                        className="magic-button" 
                         disabled={isSubmitting || !paymentProof}
                       >
                         {isSubmitting ? 'Procesando...' : 'Confirmar Pago'}
@@ -446,8 +481,8 @@ const BuyTicket = () => {
               <div className="bg-white rounded-xl shadow-md border border-magic-light overflow-hidden">
                 <div className="p-6 md:p-8 text-center">
                   <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="h-8 w-8 text-green-500" />
+                    <div className="w-16 h-16 bg-magic-light rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="h-8 w-8 text-magic" />
                     </div>
                   </div>
                   
@@ -479,8 +514,8 @@ const BuyTicket = () => {
                   </div>
                   
                   <div className="flex justify-center gap-4">
-                    <Button onClick={() => navigate('/')} className="bg-purple-500 hover:bg-purple-600 text-white">
-                      Volver al inicio
+                    <Button onClick={() => navigate('/events')} className="magic-button">
+                      Explorar más eventos
                     </Button>
                   </div>
                 </div>

@@ -173,8 +173,7 @@ export const createPendingTicket = async (
   eventLocation: string,
   price: number,
   quantity: number,
-  paymentReference: string,
-  paymentProof?: string
+  paymentReference: string
 ): Promise<PendingTicket> => {
   // Generar un ID único para la solicitud
   const id = `REQ-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
@@ -191,7 +190,6 @@ export const createPendingTicket = async (
     price,
     quantity,
     paymentReference,
-    paymentProof,
     requestDate: Date.now(),
     status: 'pending'
   };
@@ -333,7 +331,7 @@ export const deletePendingTicketPaymentProof = (ticketId: string): void => {
   
   if (ticketIndex !== -1) {
     // Remove the payment proof but keep the ticket
-    pendingTickets[ticketIndex].paymentProof = undefined;
+    pendingTickets[ticketIndex].paymentProof = null;
     localStorage.setItem('pendingTickets', JSON.stringify(pendingTickets));
   } else {
     throw new Error('Ticket not found');
