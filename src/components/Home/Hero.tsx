@@ -2,64 +2,59 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { getTicketAvailability, TICKET_CONFIG } from '@/utils/ticketUtils';
 import { events } from '@/data/events';
 
 const featuredEvent = events[0];
 
 const Hero = () => {
+  const availability = getTicketAvailability();
+  const availableTickets = availability.available;
+
   return (
-    <div className="relative overflow-hidden">
-      {/* Background elements */}
-      <div className="mandala-bg w-[800px] h-[800px] top-[-400px] right-[-400px]"></div>
-      <div className="mandala-bg w-[600px] h-[600px] bottom-[-300px] left-[-300px]"></div>
+    <div className="relative h-screen overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/lovable-uploads/58413378-f489-4e1a-be65-ea630318390c.png" 
+          alt="Misty forest" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/40"></div>
+      </div>
       
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-magic-light text-magic animate-pulse-soft">
-              <Sparkles className="h-4 w-4 mr-2" />
-              <span className="text-sm font-medium">Evento Especial en Chile</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-magic-dark leading-tight">
-              Entre Diosas y{' '}
-              <span className="bg-gradient-to-r from-magic to-magic-dark bg-clip-text text-transparent">
-                Volcanes
-              </span>
-            </h1>
-            
-            <p className="text-lg text-magic-dark/80 max-w-lg">
-              Un evento único con música, baile y karaoke en uno de los entornos naturales más hermosos de Chile. Compra tu boleto por solo $5,900.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild className="magic-button">
-                <Link to="/buy?event=1">
-                  Comprar Boleto
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="border-magic hover:bg-magic-light transition-colors">
-                <Link to="/events/1">Ver Detalles</Link>
-              </Button>
-            </div>
+      <div className="container relative z-10 mx-auto px-4 h-full flex flex-col justify-center">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center px-4 py-1 rounded-full bg-purple-500/50 text-white mb-4">
+            <span className="text-sm">Cascada de las Ánimas, Chile</span>
           </div>
           
-          <div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-magic-light shadow-xl animate-float">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-magic-light to-white flex items-center justify-center">
-              <img 
-                src={featuredEvent.image}
-                alt="Cascada de las Ánimas" 
-                className="w-full h-full object-cover rounded-lg opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-magic-dark/40 to-transparent flex items-end p-6">
-                <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Entre Diosas y Volcanes</h3>
-                  <p className="opacity-90">{featuredEvent.date}</p>
-                </div>
-              </div>
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
+            <span className="text-white">Entre </span>
+            <span className="text-pink-500">Diosas </span>
+            <span className="text-white">y </span>
+            <br />
+            <span className="text-pink-500">Volcanes</span>
+          </h1>
+          
+          <p className="text-white/90 text-lg mb-8 max-w-2xl">
+            Vive una experiencia mágica con una combinación única de artistas invitados, entretenimiento, danza, karaoke y conexión con la naturaleza.
+          </p>
+          
+          <div className="flex flex-wrap gap-4 items-center">
+            <Button asChild className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-6 rounded-full">
+              <Link to="/buy?event=1">
+                Comprar Entrada
+              </Link>
+            </Button>
+            
+            <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white">
+              <span className="whitespace-nowrap">{availableTickets} de {TICKET_CONFIG.MAX_TICKETS} entradas disponibles</span>
             </div>
+          </div>
+
+          <div className="mt-8 bg-white/10 backdrop-blur-sm p-3 inline-flex items-center rounded-lg">
+            <span className="text-white">Entrada general: 5.900 CLP</span>
           </div>
         </div>
       </div>

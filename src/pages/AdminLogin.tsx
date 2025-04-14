@@ -123,12 +123,6 @@ const AdminLogin = () => {
                     {isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                   </Button>
                 </form>
-                
-                <div className="mt-6 text-center text-sm text-magic-dark/60">
-                  <p>Para este demo, utiliza:</p>
-                  <p>Usuario: <span className="font-mono">admin</span></p>
-                  <p>Contraseña: <span className="font-mono">admin123</span></p>
-                </div>
               </div>
             </div>
           </div>

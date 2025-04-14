@@ -18,8 +18,8 @@ type AuthContextType = {
 // Mock admin user for demo purposes
 const MOCK_ADMIN = {
   id: '1',
-  username: 'admin',
-  password: 'admin123', // In a real app, this would be hashed and stored securely
+  username: 'mickool',
+  password: 'kalilinux123', // In a real app, this would be hashed and stored securely
   role: 'admin' as const
 };
 
