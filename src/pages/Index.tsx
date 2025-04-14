@@ -31,28 +31,28 @@ const Index = () => {
     <Layout>
       <Hero />
       
-      {/* Ticket Availability Section */}
-      <div className="bg-magic-light/10 py-6">
+      {/* Ticket Availability Section - Moved to a more appropriate position with proper spacing */}
+      <div className="bg-magic-light/10 py-12 mt-6">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md border border-magic-light/30 p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <Ticket className="h-6 w-6 text-magic" />
-              <h3 className="text-xl font-semibold text-magic-dark">Disponibilidad de Boletos</h3>
-            </div>
-            
-            <div className="flex items-center gap-5 mb-4">
-              <div className="flex-1">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-magic-dark/70">Boletos disponibles:</span>
-                  <span className="font-semibold">{availability.available} de {TICKET_CONFIG.MAX_TICKETS}</span>
-                </div>
-                <Progress value={availabilityPercentage} className="h-3 bg-gray-100" />
+          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md border border-magic-light/30 p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <Ticket className="h-6 w-6 text-magic" />
+                <h3 className="text-xl font-semibold text-magic-dark">Disponibilidad de Boletos</h3>
               </div>
               
               <div className="bg-blue-50 border border-blue-100 rounded-md p-3 flex items-center gap-2">
                 <span className="text-xl font-bold text-blue-700">{availability.available}</span>
                 <span className="text-blue-700 text-sm">disponibles</span>
               </div>
+            </div>
+            
+            <div className="mb-4">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm text-magic-dark/70">Boletos disponibles:</span>
+                <span className="font-semibold">{availability.available} de {TICKET_CONFIG.MAX_TICKETS}</span>
+              </div>
+              <Progress value={availabilityPercentage} className="h-3 bg-gray-100" />
             </div>
             
             {availability.available < 20 && (

@@ -9,15 +9,15 @@ const featuredEvent = events[0];
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden">
-      {/* Background elements */}
-      <div className="mandala-bg w-[800px] h-[800px] top-[-400px] right-[-400px]"></div>
-      <div className="mandala-bg w-[600px] h-[600px] bottom-[-300px] left-[-300px]"></div>
+    <div className="relative overflow-hidden pb-8">
+      {/* Background elements - Ajustados para evitar problemas de superposición */}
+      <div className="mandala-bg w-[800px] h-[800px] top-[-400px] right-[-400px] opacity-30"></div>
+      <div className="mandala-bg w-[600px] h-[600px] bottom-[-300px] left-[-300px] opacity-30"></div>
       
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-magic-light text-magic animate-pulse-soft">
+      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6 z-10 relative">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-magic-light text-magic">
               <Sparkles className="h-4 w-4 mr-2" />
               <span className="text-sm font-medium">Evento Especial en Chile</span>
             </div>
@@ -46,17 +46,19 @@ const Hero = () => {
             </div>
           </div>
           
-          <div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-magic-light shadow-xl animate-float">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-magic-light to-white flex items-center justify-center">
-              <img 
-                src={featuredEvent.image}
-                alt="Cascada de las Ánimas" 
-                className="w-full h-full object-cover rounded-lg opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-magic-dark/40 to-transparent flex items-end p-6">
-                <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Entre Diosas y Volcanes</h3>
-                  <p className="opacity-90">{featuredEvent.date}</p>
+          <div className="relative z-10">
+            <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-magic-light shadow-xl">
+              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-magic-light to-white">
+                <img 
+                  src={featuredEvent.image}
+                  alt="Cascada de las Ánimas" 
+                  className="w-full h-full object-cover rounded-lg"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-magic-dark/40 to-transparent flex items-end p-6">
+                  <div className="text-white">
+                    <h3 className="text-xl font-bold mb-2">Entre Diosas y Volcanes</h3>
+                    <p className="opacity-90">{featuredEvent.date}</p>
+                  </div>
                 </div>
               </div>
             </div>
