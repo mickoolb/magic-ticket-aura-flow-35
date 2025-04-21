@@ -334,10 +334,34 @@ const BuyTicket = () => {
                     <div className="space-y-4">
                       <div className="bg-white rounded-md p-3 border border-magic-light">
                         <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">Nombre:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">Ymairy del Carmen Arrivillaga Monsalve</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Ymairy del Carmen Arrivillaga Monsalve", "Nombre copiado")}>
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
+                          <span className="text-magic-dark/70">RUT:</span>
+                          <div className="flex items-center">
+                            <span className="font-semibold">255211544</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("255211544", "RUT copiado")}>
+                              <CopyIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-md p-3 border border-magic-light">
+                        <div className="flex justify-between items-center">
                           <span className="text-magic-dark/70">Banco:</span>
                           <div className="flex items-center">
-                            <span className="font-semibold">Banco MagicTicket</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Banco MagicTicket", "Nombre del banco copiado")}>
+                            <span className="font-semibold">Mercado Pago</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Mercado Pago", "Banco copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -346,10 +370,10 @@ const BuyTicket = () => {
                       
                       <div className="bg-white rounded-md p-3 border border-magic-light">
                         <div className="flex justify-between items-center">
-                          <span className="text-magic-dark/70">Titular:</span>
+                          <span className="text-magic-dark/70">Tipo de Cuenta:</span>
                           <div className="flex items-center">
-                            <span className="font-semibold">MagicTicket S.A.</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("MagicTicket S.A.", "Nombre del titular copiado")}>
+                            <span className="font-semibold">Cuenta Vista</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Cuenta Vista", "Tipo de cuenta copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -358,10 +382,10 @@ const BuyTicket = () => {
                       
                       <div className="bg-white rounded-md p-3 border border-magic-light">
                         <div className="flex justify-between items-center">
-                          <span className="text-magic-dark/70">Cuenta:</span>
+                          <span className="text-magic-dark/70">Número de Cuenta:</span>
                           <div className="flex items-center">
-                            <span className="font-semibold">1234-5678-9012-3456</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("1234-5678-9012-3456", "Número de cuenta copiado")}>
+                            <span className="font-semibold">1025996448</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("1025996448", "Número de cuenta copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
@@ -370,34 +394,10 @@ const BuyTicket = () => {
                       
                       <div className="bg-white rounded-md p-3 border border-magic-light">
                         <div className="flex justify-between items-center">
-                          <span className="text-magic-dark/70">CLABE:</span>
+                          <span className="text-magic-dark/70">Correo:</span>
                           <div className="flex items-center">
-                            <span className="font-semibold">012345678901234567</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("012345678901234567", "CLABE copiada")}>
-                              <CopyIcon className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white rounded-md p-3 border border-magic-light">
-                        <div className="flex justify-between items-center">
-                          <span className="text-magic-dark/70">Monto:</span>
-                          <div className="flex items-center">
-                            <span className="font-semibold text-magic">${(event.price * quantity).toLocaleString()}</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard(`${(event.price * quantity).toLocaleString()}`, "Monto copiado")}>
-                              <CopyIcon className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white rounded-md p-3 border border-magic-light">
-                        <div className="flex justify-between items-center">
-                          <span className="text-magic-dark/70">Referencia:</span>
-                          <div className="flex items-center">
-                            <span className="font-semibold text-magic">{paymentReference}</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard(paymentReference, "Referencia copiada")}>
+                            <span className="font-semibold">patagonia.luztribal@gmail.com</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("patagonia.luztribal@gmail.com", "Correo copiado")}>
                               <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
