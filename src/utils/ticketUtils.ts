@@ -173,7 +173,8 @@ export const createPendingTicket = async (
   eventLocation: string,
   price: number,
   quantity: number,
-  paymentReference: string
+  paymentReference: string,
+  paymentProof?: string
 ): Promise<PendingTicket> => {
   // Generar un ID único para la solicitud
   const id = `REQ-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
@@ -190,6 +191,7 @@ export const createPendingTicket = async (
     price,
     quantity,
     paymentReference,
+    paymentProof,
     requestDate: Date.now(),
     status: 'pending'
   };

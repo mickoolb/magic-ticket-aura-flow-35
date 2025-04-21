@@ -30,7 +30,7 @@ const Hero = () => {
             </h1>
             
             <p className="text-lg text-magic-dark/80 max-w-lg">
-              Un evento único con música, baile y karaoke en uno de los entornos naturales más hermosos de Chile. Compra tu boleto por solo $5,900.
+              Un evento único con música, baile y ceremonia ritual en uno de los entornos naturales más hermosos de Chile. Compra tu boleto por solo $5,990.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

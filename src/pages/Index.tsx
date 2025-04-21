@@ -9,6 +9,10 @@ import CTASection from '@/components/Home/CTASection';
 import { getTicketAvailability, TICKET_CONFIG } from '@/utils/ticketUtils';
 import { Progress } from '@/components/ui/progress';
 import { Ticket, AlertCircle } from 'lucide-react';
+import Artists from '@/components/Home/Artists';
+import Ceremony from '@/components/Home/Ceremony';
+import Schedule from '@/components/Home/Schedule';
+import TicketFAQ from '@/components/FAQ/TicketFAQ';
 
 const Index = () => {
   const [availability, setAvailability] = useState(getTicketAvailability());
@@ -65,10 +69,14 @@ const Index = () => {
         </div>
       </div>
       
-      <FeaturedEvents />
-      <Testimonials />
-      <CTASection />
       <Features />
+      <Ceremony />
+      <Artists />
+      <Schedule />
+      <FeaturedEvents />
+      <CTASection />
+      <Testimonials />
+      <TicketFAQ />
     </Layout>
   );
 };

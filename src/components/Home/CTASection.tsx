@@ -21,7 +21,7 @@ const CTASection = () => {
             </h2>
             <p className="text-white/90 mb-8 text-lg">
               No esperes más para disfrutar de "Entre Diosas y Volcanes". 
-              Compra tu boleto ahora por solo $5,900 y asegura tu lugar para el 17 de Mayo, 2025.
+              Compra tu boleto ahora por solo $5,990 y asegura tu lugar para el 17 de Mayo, 2025.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="magic-button-gold">

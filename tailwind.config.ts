@@ -135,6 +135,7 @@ export default {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'gradient-spiritual': 'linear-gradient(to right, #c1c161 0%, #c1c161 0%, #d4d4b1 100%)',
 				'gradient-purple': 'linear-gradient(102.3deg, rgba(147,39,143,1) 5.9%, rgba(234,172,232,1) 64%, rgba(246,219,245,1) 89%)',
+				'gradient-cosmic': 'linear-gradient(to right, #4B0082, #8A2BE2, #9400D3)',
 				'gradient-soft': 'linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%)',
 			}
 		}

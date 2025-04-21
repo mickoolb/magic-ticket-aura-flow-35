@@ -21,22 +21,25 @@ export const events: Event[] = [
     id: '1',
     title: 'Entre Diosas y Volcanes',
     date: '17 de Mayo, 2025',
-    time: '10:00 AM - 6:00 PM',
+    time: '16:00 - 22:00 hrs',
     location: 'Cascada de las Ánimas',
-    address: 'San José de Maipo, Región Metropolitana, Chile',
-    price: 5900,
-    instructor: 'Varios Artistas Invitados',
-    image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&q=80&w=600',
-    description: 'Un evento inolvidable con música, baile, karaoke y mucha diversión en un entorno natural único.',
+    address: 'Camino al Volcán 31087, San Alfonso, Cajón del Maipo',
+    price: 5990,
+    instructor: 'DJ Césil, Diosas Pélvicas, Nina Inti y más',
+    image: '/lovable-uploads/87f70ee5-2639-4c68-84ee-bb7c628da506.png',
+    description: 'Un evento inolvidable con música, baile, karaoke y ceremonia ritual en un entorno natural único.',
     longDescription: `
       Te invitamos a "Entre Diosas y Volcanes", un evento único en la majestuosa Cascada de las Ánimas, ubicada en el corazón de la cordillera de los Andes chilenos.
 
-      Durante esta experiencia inolvidable, disfrutarás de un día completo de entretenimiento con:
-      - Presentaciones de varios artistas invitados
-      - Sesiones de baile
-      - Karaoke para todos los asistentes
-      - Actividades recreativas
-      - Un ambiente festivo y natural incomparable
+      Durante esta experiencia inolvidable, disfrutarás de:
+      - Ceremonia Ritual Ave Fénix
+      - Vibrantes shows en vivo
+      - DJ Césil ambientando el evento
+      - Presentaciones de Diosas Pélvicas
+      - Amar de Volcán junto a Chami Gyal y Tsunami Cósmica
+      - Nina Inti y Euffepic
+      - Micrófono abierto con premio
+      - Un ambiente místico en la naturaleza
 
       El evento incluye:
       - Acceso completo a todas las actividades
