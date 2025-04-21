@@ -1,37 +1,36 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 260 50% 98%;
-    --foreground: 250 10% 20%;
+    --background: 260 30% 10%;
+    --foreground: 260 10% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 250 10% 20%;
+    --card: 260 30% 12%;
+    --card-foreground: 260 10% 90%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 250 10% 20%;
+    --popover: 260 30% 12%;
+    --popover-foreground: 260 10% 90%;
 
     --primary: 260 50% 65%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 260 30% 94%;
-    --secondary-foreground: 260 50% 40%;
+    --secondary: 260 20% 20%;
+    --secondary-foreground: 260 10% 90%;
 
-    --muted: 260 20% 94%;
-    --muted-foreground: 260 10% 50%;
+    --muted: 260 20% 20%;
+    --muted-foreground: 260 10% 70%;
 
-    --accent: 40 70% 80%;
-    --accent-foreground: 260 50% 40%;
+    --accent: 40 50% 60%;
+    --accent-foreground: 260 20% 20%;
 
-    --destructive: 0 80% 65%;
+    --destructive: 0 70% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 260 20% 90%;
-    --input: 260 20% 90%;
-    --ring: 260 50% 65%;
+    --border: 260 20% 25%;
+    --input: 260 20% 25%;
+    --ring: 260 50% 70%;
 
     --radius: 0.8rem;
 
@@ -94,12 +93,12 @@
 
   /* Custom card styles */
   .magic-card {
-    @apply bg-white/80 backdrop-blur-sm border border-magic-light rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg;
+    @apply bg-card/80 backdrop-blur-sm border border-primary/20 rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:border-primary/40;
   }
 
   /* Button with spiritual glow */
   .magic-button {
-    @apply relative overflow-hidden bg-magic text-white px-6 py-3 rounded-full font-medium transition-all duration-300;
+    @apply relative overflow-hidden bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium transition-all duration-300;
   }
   
   .magic-button::before {
@@ -112,14 +111,7 @@
 
   /* Gold accent button */
   .magic-button-gold {
-    @apply relative overflow-hidden bg-magic-gold text-magic-dark px-6 py-3 rounded-full font-medium transition-all duration-300;
-  }
-  
-  .magic-button-gold::before {
-    @apply content-[''] absolute top-0 left-[-100%] w-full h-full bg-white/30 skew-x-[45deg] transition-all duration-700;
-  }
-  
-  .magic-button-gold:hover::before {
-    @apply left-[150%];
+    @apply relative overflow-hidden bg-accent text-accent-foreground px-6 py-3 rounded-full font-medium transition-all duration-300;
   }
 }
+

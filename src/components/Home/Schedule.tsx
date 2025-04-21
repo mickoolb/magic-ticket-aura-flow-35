@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Clock, MapPin, Music, BookOpen, Coffee, Star } from 'lucide-react';
+import { Clock, MapPin, Music, Star } from 'lucide-react';
 
 type ScheduleItem = {
   time: string;
@@ -17,45 +16,27 @@ const scheduleItems: ScheduleItem[] = [
     icon: MapPin
   },
   {
-    time: "16:30",
-    title: "Ceremonia Ritual Ave Fénix",
-    description: "Ritual espiritual de transformación y renacimiento dirigido por nuestras guías.",
-    icon: Star
-  },
-  {
-    time: "17:30",
-    title: "Presentación: Diosas Pélvicas",
-    description: "Espectáculo de danza que conecta con la energía femenina ancestral.",
+    time: "17:00",
+    title: "DJ Césil",
+    description: "Música envolvente para comenzar la noche con la mejor energía.",
     icon: Music
   },
   {
     time: "18:30",
-    title: "Coffee Break",
-    description: "Pausa para disfrutar de infusiones y aperitivos saludables.",
-    icon: Coffee
-  },
-  {
-    time: "19:00",
-    title: "Presentación: Amar de Volcán con Chami Gyal y Tsunami Cósmica",
-    description: "Experiencia musical que fusiona sonidos andinos con ritmos contemporáneos.",
+    title: "Show en Vivo: Diosas Pélvicas",
+    description: "Espectáculo que fusiona danza y música en una experiencia única.",
     icon: Music
   },
   {
     time: "20:00",
-    title: "Presentación: Nina Inti y Euffepic",
-    description: "Artistas que canalizan energías ancestrales a través de su música.",
-    icon: Music
-  },
-  {
-    time: "21:00",
     title: "Micrófono Abierto",
-    description: "Sesión participativa donde los asistentes pueden compartir su talento.",
-    icon: BookOpen
+    description: "¡Participa y muestra tu talento! El mejor acto recibirá un premio especial.",
+    icon: Star
   },
   {
     time: "22:00",
     title: "Cierre del Evento",
-    description: "Ceremonia de agradecimiento y despedida.",
+    description: "Despedida y agradecimiento por compartir esta experiencia única.",
     icon: Clock
   }
 ];

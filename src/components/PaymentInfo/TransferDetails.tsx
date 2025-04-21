@@ -35,8 +35,8 @@ const TransferDetails: React.FC<TransferDetailsProps> = ({ amount, reference }) 
             <div className="flex justify-between items-center">
               <span className="text-magic-dark/70">Banco:</span>
               <div className="flex items-center">
-                <span className="font-medium text-magic-dark">Banco Estado</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Banco Estado", "Banco copiado")}>
+                <span className="font-medium text-magic-dark">Mercado Pago</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Mercado Pago", "Banco copiado")}>
                   <Copy className="h-4 w-4 text-magic" />
                 </Button>
               </div>
@@ -45,8 +45,8 @@ const TransferDetails: React.FC<TransferDetailsProps> = ({ amount, reference }) 
             <div className="flex justify-between items-center">
               <span className="text-magic-dark/70">Tipo de Cuenta:</span>
               <div className="flex items-center">
-                <span className="font-medium text-magic-dark">Cuenta Corriente</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Cuenta Corriente", "Tipo de cuenta copiado")}>
+                <span className="font-medium text-magic-dark">Cuenta Vista</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Cuenta Vista", "Tipo de cuenta copiado")}>
                   <Copy className="h-4 w-4 text-magic" />
                 </Button>
               </div>
@@ -55,8 +55,8 @@ const TransferDetails: React.FC<TransferDetailsProps> = ({ amount, reference }) 
             <div className="flex justify-between items-center">
               <span className="text-magic-dark/70">Número de Cuenta:</span>
               <div className="flex items-center">
-                <span className="font-medium text-magic-dark">00012345678</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("00012345678", "Número de cuenta copiado")}>
+                <span className="font-medium text-magic-dark">1025996448</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("1025996448", "Número de cuenta copiado")}>
                   <Copy className="h-4 w-4 text-magic" />
                 </Button>
               </div>
@@ -74,8 +74,8 @@ const TransferDetails: React.FC<TransferDetailsProps> = ({ amount, reference }) 
             <div className="flex justify-between items-center">
               <span className="text-magic-dark/70">Nombre:</span>
               <div className="flex items-center">
-                <span className="font-medium text-magic-dark">María Luz Espiritual</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("María Luz Espiritual", "Nombre copiado")}>
+                <span className="font-medium text-magic-dark">Ymairy del Carmen Arrivillaga Monsalve</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("Ymairy del Carmen Arrivillaga Monsalve", "Nombre copiado")}>
                   <Copy className="h-4 w-4 text-magic" />
                 </Button>
               </div>
@@ -84,8 +84,8 @@ const TransferDetails: React.FC<TransferDetailsProps> = ({ amount, reference }) 
             <div className="flex justify-between items-center">
               <span className="text-magic-dark/70">RUT:</span>
               <div className="flex items-center">
-                <span className="font-medium text-magic-dark">12.345.678-9</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("12.345.678-9", "RUT copiado")}>
+                <span className="font-medium text-magic-dark">255211544</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("255211544", "RUT copiado")}>
                   <Copy className="h-4 w-4 text-magic" />
                 </Button>
               </div>
@@ -94,56 +94,24 @@ const TransferDetails: React.FC<TransferDetailsProps> = ({ amount, reference }) 
             <div className="flex justify-between items-center">
               <span className="text-magic-dark/70">Email:</span>
               <div className="flex items-center">
-                <span className="font-medium text-magic-dark">ceremonias@entredeosasvolcanes.cl</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("ceremonias@entredeosasvolcanes.cl", "Email copiado")}>
+                <span className="font-medium text-magic-dark">patagonia.luztribal@gmail.com</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard("patagonia.luztribal@gmail.com", "Email copiado")}>
                   <Copy className="h-4 w-4 text-magic" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold text-magic-dark mb-3 flex items-center">
-            <CreditCard className="h-5 w-5 mr-2 text-magic" />
-            Información del Pago
-          </h3>
-          
-          <div className="space-y-3 bg-magic-light/20 p-4 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-magic-dark/70">Monto:</span>
-              <div className="flex items-center">
-                <span className="font-medium text-magic-dark">${amount}</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard(amount, "Monto copiado")}>
-                  <Copy className="h-4 w-4 text-magic" />
-                </Button>
-              </div>
+
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start">
+            <Calendar className="h-5 w-5 mr-3 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-semibold text-yellow-800">Importante:</h4>
+              <p className="text-yellow-700 text-sm">
+                Una vez realizada la transferencia, envía el comprobante de pago al correo patagonia.luztribal@gmail.com para confirmar tu compra.
+              </p>
             </div>
-            
-            {reference && (
-              <div className="flex justify-between items-center">
-                <span className="text-magic-dark/70">Comentario:</span>
-                <div className="flex items-center">
-                  <span className="font-medium text-magic-dark">{reference}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => handleCopyToClipboard(reference, "Referencia copiada")}>
-                    <Copy className="h-4 w-4 text-magic" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <div className="flex items-start">
-          <Calendar className="h-5 w-5 mr-3 text-yellow-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="font-semibold text-yellow-800">Importante:</h4>
-            <p className="text-yellow-700 text-sm">
-              Una vez realizada la transferencia, envía el comprobante de pago al WhatsApp +56 945 835 342 
-              o al correo ceremonias@entredeosasvolcanes.cl para confirmar tu compra.
-            </p>
           </div>
         </div>
       </div>

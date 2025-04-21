@@ -10,7 +10,7 @@ const featuredEvent = events[0];
 const Hero = () => {
   return (
     <div className="relative overflow-hidden pb-8">
-      {/* Background elements - Ajustados para evitar problemas de superposición */}
+      {/* Background elements */}
       <div className="mandala-bg w-[800px] h-[800px] top-[-400px] right-[-400px] opacity-30"></div>
       <div className="mandala-bg w-[600px] h-[600px] bottom-[-300px] left-[-300px] opacity-30"></div>
       
@@ -30,7 +30,10 @@ const Hero = () => {
             </h1>
             
             <p className="text-lg text-magic-dark/80 max-w-lg">
-              Un evento único con música, baile y ceremonia ritual en uno de los entornos naturales más hermosos de Chile. Compra tu boleto por solo $5,990.
+              ¡No dejes pasar esta oportunidad única! Vive la experiencia de 'Entre Diosas y Volcanes'. 
+              Adquiere tu entrada por solo $5,990, asegura tu lugar para el 17 de mayo de 2025 y 
+              Atrévete a ganar un premio mostrando tu arte en el Micrófono Abierto. 
+              ¡Te esperamos para una noche inolvidable!
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

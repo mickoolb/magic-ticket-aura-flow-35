@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout/Layout';
 import Hero from '@/components/Home/Hero';
@@ -10,7 +9,6 @@ import { getTicketAvailability, TICKET_CONFIG } from '@/utils/ticketUtils';
 import { Progress } from '@/components/ui/progress';
 import { Ticket, AlertCircle } from 'lucide-react';
 import Artists from '@/components/Home/Artists';
-import Ceremony from '@/components/Home/Ceremony';
 import Schedule from '@/components/Home/Schedule';
 import TicketFAQ from '@/components/FAQ/TicketFAQ';
 
@@ -35,7 +33,6 @@ const Index = () => {
     <Layout>
       <Hero />
       
-      {/* Ticket Availability Section - Moved to a more appropriate position with proper spacing */}
       <div className="bg-magic-light/10 py-12 mt-6">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md border border-magic-light/30 p-6">
@@ -70,7 +67,6 @@ const Index = () => {
       </div>
       
       <Features />
-      <Ceremony />
       <Artists />
       <Schedule />
       <FeaturedEvents />
